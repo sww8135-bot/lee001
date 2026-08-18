@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เครื่องคิดเลขคำนวณส่วนลดสินค้า</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background-color: #161b22;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            width: 320px;
+            border: 1px solid #30363d;
+        }
+        h2 {
+            text-align: center;
+            color: #58a6ff;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #8b949e;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 1rem;
+        }
+        input:focus {
+            border-color: #58a6ff;
+            outline: none;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #21262d;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+        }
+        .result p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+        .highlight {
+            color: #3fb950;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <h2>คำนวณส่วนลดสินค้า</h2>
+    
+    <div class="input-group">
+        <label for="price">ราคาเต็มสินค้า (บาท):</label>
+        <input type="number" id="price" placeholder="ระบุราคาเต็ม" oninput="calculate()">
+    </div>
+
+    <div class="input-group">
+        <label for="discount">เปอร์เซ็นต์ส่วนลด (%):</label>
+        <input type="number" id="discount" placeholder="ระบุส่วนลด เช่น 10, 25" oninput="calculate()">
+    </div>
+
+    <div class="result">
+        <p>ส่วนลดที่ได้รับ: <span id="saveAmount">0.00</span> บาท</p>
+        <p>ราคาที่ต้องจ่ายจริง: <span id="finalPrice" class="highlight">0.00</span> บาท</p>
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        let price = parseFloat(document.getElementById('price').value);
+        let discount = parseFloat(document.getElementById('discount').value);
+
+        let saveAmountElem = document.getElementById('saveAmount');
+        let finalPriceElem = document.getElementById('finalPrice');
+
+        if (isNaN(price) || price < 0) {
+            price = 0;
+        }
+        if (isNaN(discount) || discount < 0) {
+            discount = 0;
+        }
+
+        let discountAmount = (price * discount) / 100;
+        let finalPrice = price - discountAmount;
+
+        saveAmountElem.textContent = discountAmount.toFixed(2);
+        finalPriceElem.textContent = finalPrice.toFixed(2);
+    }
+</script>
+
+</body>
+</html>
