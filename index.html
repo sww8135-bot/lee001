@@ -1,1 +1,297 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>บาสเกตบอล โน้ต</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .card-bg {
+      background-color: #1e293b;
+    }
+    .accent-orange {
+      background-color: #f97316;
+    }
+    .accent-orange:hover {
+      background-color: #ea580c;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
 
+  <header class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-800 pb-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 accent-orange rounded-full flex items-center justify-center text-white text-xl font-bold">
+        <i class="fa-solid fa-basketball"></i>
+      </div>
+      <h1 class="text-2xl font-bold">บาสเกตบอล โน้ต</h1>
+    </div>
+    <div class="flex bg-slate-800 p-1 rounded-xl">
+      <button id="nav-schedule" onclick="switchTab('schedule')" class="px-5 py-2 rounded-lg font-medium text-sm transition-all accent-orange text-white">
+        <i class="fa-regular fa-calendar-days mr-2"></i>ตารางซ้อม
+      </button>
+      <button id="nav-stats" onclick="switchTab('stats')" class="px-5 py-2 rounded-lg font-medium text-sm transition-all text-slate-400 hover:text-white">
+        <i class="fa-solid fa-chart-line mr-2"></i>สถิติการยิง
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto">
+    <section id="view-schedule">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold">ตารางการซ้อมทั้งหมด</h2>
+        <button onclick="addSchedule()" class="accent-orange text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:opacity-90">
+          <i class="fa-solid fa-plus"></i> เพิ่มหัวข้อ
+        </button>
+      </div>
+      
+      <div id="schedule-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        </div>
+    </section>
+
+    <section id="view-stats" class="hidden">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-xl font-bold">บันทึกสถิติการยิงประตู</h2>
+          <p class="text-xs text-slate-400">สรุปผลความแม่นยำแยกตามตำแหน่งการยิง</p>
+        </div>
+        <button onclick="openStatModal()" class="accent-orange text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:opacity-90">
+          <i class="fa-solid fa-plus"></i> บันทึกสถิติใหม่
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
+          <span class="bg-amber-900/40 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ใต้แป้น / เลย์อัพ</span>
+          <div class="text-3xl font-extrabold my-3" id="pct-layup">0.0%</div>
+          <div class="flex justify-between text-xs text-slate-400">
+            <span>ยิงเข้า: <strong class="text-emerald-400" id="made-layup">0</strong> ลูก</span>
+            <span>ยิงทั้งหมด: <strong class="text-white" id="total-layup">0</strong> ลูก</span>
+          </div>
+        </div>
+
+        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
+          <span class="bg-amber-900/40 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ระยะกลาง (Mid-range)</span>
+          <div class="text-3xl font-extrabold my-3" id="pct-midrange">0.0%</div>
+          <div class="flex justify-between text-xs text-slate-400">
+            <span>ยิงเข้า: <strong class="text-emerald-400" id="made-midrange">0</strong> ลูก</span>
+            <span>ยิงทั้งหมด: <strong class="text-white" id="total-midrange">0</strong> ลูก</span>
+          </div>
+        </div>
+
+        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
+          <span class="bg-purple-900/40 text-purple-400 text-xs px-2.5 py-1 rounded-md font-semibold">ยิง 3 คะแนน</span>
+          <div class="text-3xl font-extrabold my-3" id="pct-three">0.0%</div>
+          <div class="flex justify-between text-xs text-slate-400">
+            <span>ยิงเข้า: <strong class="text-emerald-400" id="made-three">0</strong> ลูก</span>
+            <span>ยิงทั้งหมด: <strong class="text-white" id="total-three">0</strong> ลูก</span>
+          </div>
+        </div>
+
+        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
+          <span class="bg-blue-900/40 text-blue-400 text-xs px-2.5 py-1 rounded-md font-semibold">ลูกโทษ (Free Throws)</span>
+          <div class="text-3xl font-extrabold my-3" id="pct-freethrow">0.0%</div>
+          <div class="flex justify-between text-xs text-slate-400">
+            <span>ยิงเข้า: <strong class="text-emerald-400" id="made-freethrow">0</strong> ลูก</span>
+            <span>ยิงทั้งหมด: <strong class="text-white" id="total-freethrow">0</strong> ลูก</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> ประวัติการยิงย้อนหลัง
+      </h3>
+      <div id="history-list" class="space-y-3">
+        </div>
+    </section>
+  </main>
+
+  <div id="stat-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="card-bg p-6 rounded-2xl w-full max-w-md border border-slate-700">
+      <h3 class="text-lg font-bold mb-4">บันทึกสถิติการยิง</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">ประเภทการยิง</label>
+          <select id="stat-type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white">
+            <option value="layup">ใต้แป้น / เลย์อัพ</option>
+            <option value="midrange">ระยะกลาง (Mid-range)</option>
+            <option value="three">ยิง 3 คะแนน</option>
+            <option value="freethrow">ลูกโทษ (Free Throws)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">ยิงเข้า (ลูก)</label>
+          <input type="number" id="stat-made" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white" value="10">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">ยิงทั้งหมด (ลูก)</label>
+          <input type="number" id="stat-attempt" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white" value="20">
+        </div>
+      </div>
+      <div class="flex gap-3 justify-end mt-6">
+        <button onclick="closeStatModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm">ยกเลิก</button>
+        <button onclick="saveStat()" class="px-4 py-2 accent-orange text-white rounded-lg text-sm font-semibold">บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State Management
+    let currentTab = 'schedule';
+    let schedules = JSON.parse(localStorage.getItem('schedules')) || [
+      { id: 1, title: 'วันจันทร์', count: 2 }
+    ];
+    let stats = JSON.parse(localStorage.getItem('statsHistory')) || [
+      { id: 1, type: 'three', typeName: 'ยิง 3 คะแนน', made: 10, attempt: 20, date: '2026-09-06' },
+      { id: 2, type: 'layup', typeName: 'ใต้แป้น / เลย์อัพ', made: 12, attempt: 15, date: '2026-09-05' }
+    ];
+
+    function switchTab(tab) {
+      currentTab = tab;
+      const navSchedule = document.getElementById('nav-schedule');
+      const navStats = document.getElementById('nav-stats');
+      const viewSchedule = document.getElementById('view-schedule');
+      const viewStats = document.getElementById('view-stats');
+
+      if (tab === 'schedule') {
+        navSchedule.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all accent-orange text-white';
+        navStats.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all text-slate-400 hover:text-white';
+        viewSchedule.classList.remove('hidden');
+        viewStats.classList.add('hidden');
+      } else {
+        navStats.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all accent-orange text-white';
+        navSchedule.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all text-slate-400 hover:text-white';
+        viewStats.classList.remove('hidden');
+        viewSchedule.classList.add('hidden');
+      }
+    }
+
+    function renderSchedules() {
+      const container = document.getElementById('schedule-list');
+      container.innerHTML = schedules.map(item => `
+        <div class="card-bg p-5 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all cursor-pointer">
+          <div class="flex justify-between items-start mb-4">
+            <span class="bg-amber-900/30 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ตารางซ้อม</span>
+            <i class="fa-solid fa-chevron-right text-slate-500 text-sm"></i>
+          </div>
+          <h3 class="text-xl font-bold mb-4">${item.title}</h3>
+          <div class="flex justify-between items-center text-xs text-slate-400 pt-3 border-t border-slate-800">
+            <span><i class="fa-solid fa-list-check mr-1"></i> ${item.count} รายการซ้อม</span>
+            <span class="text-amber-500 hover:underline">ดูรายละเอียด</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addSchedule() {
+      const title = prompt('กรอกชื่อหัวข้อตารางซ้อม (เช่น วันอังคาร):');
+      if (title) {
+        schedules.push({ id: Date.now(), title, count: 0 });
+        localStorage.setItem('schedules', JSON.stringify(schedules));
+        renderSchedules();
+      }
+    }
+
+    function renderStats() {
+      const totals = {
+        layup: { made: 0, attempt: 0 },
+        midrange: { made: 0, attempt: 0 },
+        three: { made: 0, attempt: 0 },
+        freethrow: { made: 0, attempt: 0 }
+      };
+
+      stats.forEach(s => {
+        if (totals[s.type]) {
+          totals[s.type].made += s.made;
+          totals[s.type].attempt += s.attempt;
+        }
+      });
+
+      ['layup', 'midrange', 'three', 'freethrow'].forEach(type => {
+        const made = totals[type].made;
+        const attempt = totals[type].attempt;
+        const pct = attempt > 0 ? ((made / attempt) * 100).toFixed(1) : '0.0';
+
+        document.getElementById(`made-${type}`).innerText = made;
+        document.getElementById(`total-${type}`).innerText = attempt;
+        document.getElementById(`pct-${type}`).innerText = `${pct}%`;
+      });
+
+      const historyContainer = document.getElementById('history-list');
+      historyContainer.innerHTML = stats.map(s => {
+        const pct = s.attempt > 0 ? ((s.made / s.attempt) * 100).toFixed(1) : '0.0';
+        return `
+          <div class="card-bg p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+              <span class="text-xs bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg border border-slate-700">${s.date}</span>
+              <div>
+                <div class="font-bold text-sm">${s.typeName}</div>
+                <div class="text-xs text-slate-400">ยิงเข้า <span class="text-emerald-400 font-semibold">${s.made}</span> จาก <span class="text-white font-semibold">${s.attempt}</span> ลูก</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-emerald-400 font-bold text-lg">${pct}%</span>
+              <button onclick="deleteStat(${s.id})" class="text-slate-500 hover:text-red-400 transition-colors">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openStatModal() {
+      document.getElementById('stat-modal').classList.remove('hidden');
+      document.getElementById('stat-modal').classList.add('flex');
+    }
+
+    function closeStatModal() {
+      document.getElementById('stat-modal').classList.add('hidden');
+      document.getElementById('stat-modal').classList.remove('flex');
+    }
+
+    function saveStat() {
+      const typeSelect = document.getElementById('stat-type');
+      const type = typeSelect.value;
+      const typeName = typeSelect.options[typeSelect.selectedIndex].text;
+      const made = parseInt(document.getElementById('stat-made').value) || 0;
+      const attempt = parseInt(document.getElementById('stat-attempt').value) || 0;
+      const today = new Date().toISOString().split('T')[0];
+
+      if (attempt < made) {
+        alert('จำนวนยิงเข้าต้องไม่มากกว่าจำนวนยิงทั้งหมด');
+        return;
+      }
+
+      stats.unshift({
+        id: Date.now(),
+        type,
+        typeName,
+        made,
+        attempt,
+        date: today
+      });
+
+      localStorage.setItem('statsHistory', JSON.stringify(stats));
+      renderStats();
+      closeStatModal();
+    }
+
+    function deleteStat(id) {
+      stats = stats.filter(s => s.id !== id);
+      localStorage.setItem('statsHistory', JSON.stringify(stats));
+      renderStats();
+    }
+
+    // Initial Render
+    renderSchedules();
+    renderStats();
+  </script>
+</body>
+</html>
