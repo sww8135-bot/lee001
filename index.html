@@ -4,6 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>บาสเกตบอล โน้ต</title>
+
+  <!-- === ส่วนนี้คือโค้ดสำหรับไอคอนแอป === -->
+  <!-- 1. ไอคอนสำหรับแถบบราวเซอร์บนคอม (Favicon) -->
+  <link rel="icon" type="image/png" href="icon.png">
+  
+  <!-- 2. ไอคอนสำหรับเมื่อเพิ่มแอปไปยังหน้าจอโฮมของ iPhone/iPad (Apple Touch Icon) -->
+  <link rel="apple-touch-icon" href="icon.png">
+  
+  <!-- 3. ข้อมูลสำหรับ Android/PWA (ถ้าคุณมีไฟล์ manifest.json ในอนาคต) -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="บาสเกตบอล โน้ต">
+  <!-- =================================== -->
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -22,6 +35,7 @@
   <!-- Header Section -->
   <header class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-800 pb-4">
     <div class="flex items-center gap-3">
+      <!-- ไอคอนบาสเกตบอลด้านบน -->
       <div class="w-10 h-10 accent-orange rounded-full flex items-center justify-center text-white text-xl font-bold">
         <i class="fa-solid fa-basketball"></i>
       </div>
@@ -37,6 +51,7 @@
     </div>
   </header>
 
+  <!-- [ส่วนที่เหลือของ MAIN และ SCRIPT ยังคงเดิม] -->
   <main class="max-w-5xl mx-auto">
     <!-- Schedule Main View -->
     <section id="view-schedule">
@@ -52,7 +67,7 @@
       </div>
     </section>
 
-    <!-- Schedule Detail View (รายการซ้อมย่อย) -->
+    <!-- Schedule Detail View -->
     <section id="view-schedule-detail" class="hidden">
       <div class="flex items-center justify-between mb-6">
         <button onclick="backToScheduleList()" class="text-slate-400 hover:text-white flex items-center gap-2 text-sm font-medium">
@@ -86,7 +101,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div class="card-bg p-5 rounded-2xl border border-slate-800">
+        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
           <span class="bg-amber-900/40 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ใต้แป้น / เลย์อัพ</span>
           <div class="text-3xl font-extrabold my-3" id="pct-layup">0.0%</div>
           <div class="flex justify-between text-xs text-slate-400">
@@ -95,7 +110,7 @@
           </div>
         </div>
 
-        <div class="card-bg p-5 rounded-2xl border border-slate-800">
+        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
           <span class="bg-amber-900/40 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ระยะกลาง (Mid-range)</span>
           <div class="text-3xl font-extrabold my-3" id="pct-midrange">0.0%</div>
           <div class="flex justify-between text-xs text-slate-400">
@@ -104,7 +119,7 @@
           </div>
         </div>
 
-        <div class="card-bg p-5 rounded-2xl border border-slate-800">
+        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
           <span class="bg-purple-900/40 text-purple-400 text-xs px-2.5 py-1 rounded-md font-semibold">ยิง 3 คะแนน</span>
           <div class="text-3xl font-extrabold my-3" id="pct-three">0.0%</div>
           <div class="flex justify-between text-xs text-slate-400">
@@ -113,7 +128,7 @@
           </div>
         </div>
 
-        <div class="card-bg p-5 rounded-2xl border border-slate-800">
+        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
           <span class="bg-blue-900/40 text-blue-400 text-xs px-2.5 py-1 rounded-md font-semibold">ลูกโทษ (Free Throws)</span>
           <div class="text-3xl font-extrabold my-3" id="pct-freethrow">0.0%</div>
           <div class="flex justify-between text-xs text-slate-400">
@@ -221,7 +236,7 @@
     function renderSchedules() {
       const container = document.getElementById('schedule-list');
       container.innerHTML = schedules.map(item => `
-        <div onclick="viewScheduleDetail(${item.id})" class="card-bg p-5 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all cursor-pointer">
+        <div onclick="viewScheduleDetail(${item.id})" class="card-bg p-5 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all cursor-pointer relative">
           <div class="flex justify-between items-start mb-4">
             <span class="bg-amber-900/30 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ตารางซ้อม</span>
             <div class="flex items-center gap-2">
@@ -262,9 +277,11 @@
     }
 
     function deleteSchedule(id) {
-      schedules = schedules.filter(s => s.id !== id);
-      localStorage.setItem('schedules', JSON.stringify(schedules));
-      renderSchedules();
+      if(confirm('คุณต้องการลบตารางซ้อมนี้ใช่หรือไม่?')) {
+        schedules = schedules.filter(s => s.id !== id);
+        localStorage.setItem('schedules', JSON.stringify(schedules));
+        renderSchedules();
+      }
     }
 
     function viewScheduleDetail(id) {
@@ -329,11 +346,13 @@
     }
 
     function deleteTask(index) {
-      const target = schedules.find(s => s.id === activeScheduleId);
-      if (target && target.tasks) {
-        target.tasks.splice(index, 1);
-        localStorage.setItem('schedules', JSON.stringify(schedules));
-        renderTasks();
+      if(confirm('คุณต้องการลบรายการซ้อมนี้ใช่หรือไม่?')) {
+        const target = schedules.find(s => s.id === activeScheduleId);
+        if (target && target.tasks) {
+          target.tasks.splice(index, 1);
+          localStorage.setItem('schedules', JSON.stringify(schedules));
+          renderTasks();
+        }
       }
     }
 
@@ -415,9 +434,11 @@
     }
 
     function deleteStat(id) {
-      stats = stats.filter(s => s.id !== id);
-      localStorage.setItem('statsHistory', JSON.stringify(stats));
-      renderStats();
+      if(confirm('คุณต้องการลบสถิตินี้ใช่หรือไม่?')) {
+        stats = stats.filter(s => s.id !== id);
+        localStorage.setItem('statsHistory', JSON.stringify(stats));
+        renderStats();
+      }
     }
 
     renderSchedules();
