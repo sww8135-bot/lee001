@@ -12,19 +12,14 @@
       color: #f8fafc;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    .card-bg {
-      background-color: #1e293b;
-    }
-    .accent-orange {
-      background-color: #f97316;
-    }
-    .accent-orange:hover {
-      background-color: #ea580c;
-    }
+    .card-bg { background-color: #1e293b; }
+    .accent-orange { background-color: #f97316; }
+    .accent-orange:hover { background-color: #ea580c; }
   </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
+  <!-- Header Section -->
   <header class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-800 pb-4">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 accent-orange rounded-full flex items-center justify-center text-white text-xl font-bold">
@@ -43,18 +38,42 @@
   </header>
 
   <main class="max-w-5xl mx-auto">
+    <!-- Schedule Main View -->
     <section id="view-schedule">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-bold">ตารางการซ้อมทั้งหมด</h2>
-        <button onclick="addSchedule()" class="accent-orange text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:opacity-90">
+        <button onclick="openAddScheduleModal()" class="accent-orange text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:opacity-90">
           <i class="fa-solid fa-plus"></i> เพิ่มหัวข้อ
         </button>
       </div>
       
       <div id="schedule-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        </div>
+        <!-- Dynamic Schedule Cards -->
+      </div>
     </section>
 
+    <!-- Schedule Detail View (รายการซ้อมย่อย) -->
+    <section id="view-schedule-detail" class="hidden">
+      <div class="flex items-center justify-between mb-6">
+        <button onclick="backToScheduleList()" class="text-slate-400 hover:text-white flex items-center gap-2 text-sm font-medium">
+          <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
+        </button>
+        <button onclick="openAddTaskModal()" class="accent-orange text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:opacity-90">
+          <i class="fa-solid fa-plus"></i> เพิ่มรายการซ้อม
+        </button>
+      </div>
+
+      <div class="card-bg p-6 rounded-2xl border border-slate-800 mb-6">
+        <h2 id="detail-title" class="text-2xl font-bold mb-2">วันซ้อม</h2>
+        <p class="text-xs text-slate-400">รายการท่าซ้อมและแผนการฝึกซ้อมของวันนี้</p>
+      </div>
+
+      <div id="task-list" class="space-y-3">
+        <!-- Dynamic Tasks -->
+      </div>
+    </section>
+
+    <!-- Stats View -->
     <section id="view-stats" class="hidden">
       <div class="flex justify-between items-center mb-6">
         <div>
@@ -67,7 +86,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
+        <div class="card-bg p-5 rounded-2xl border border-slate-800">
           <span class="bg-amber-900/40 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ใต้แป้น / เลย์อัพ</span>
           <div class="text-3xl font-extrabold my-3" id="pct-layup">0.0%</div>
           <div class="flex justify-between text-xs text-slate-400">
@@ -76,7 +95,7 @@
           </div>
         </div>
 
-        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
+        <div class="card-bg p-5 rounded-2xl border border-slate-800">
           <span class="bg-amber-900/40 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ระยะกลาง (Mid-range)</span>
           <div class="text-3xl font-extrabold my-3" id="pct-midrange">0.0%</div>
           <div class="flex justify-between text-xs text-slate-400">
@@ -85,7 +104,7 @@
           </div>
         </div>
 
-        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
+        <div class="card-bg p-5 rounded-2xl border border-slate-800">
           <span class="bg-purple-900/40 text-purple-400 text-xs px-2.5 py-1 rounded-md font-semibold">ยิง 3 คะแนน</span>
           <div class="text-3xl font-extrabold my-3" id="pct-three">0.0%</div>
           <div class="flex justify-between text-xs text-slate-400">
@@ -94,7 +113,7 @@
           </div>
         </div>
 
-        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
+        <div class="card-bg p-5 rounded-2xl border border-slate-800">
           <span class="bg-blue-900/40 text-blue-400 text-xs px-2.5 py-1 rounded-md font-semibold">ลูกโทษ (Free Throws)</span>
           <div class="text-3xl font-extrabold my-3" id="pct-freethrow">0.0%</div>
           <div class="flex justify-between text-xs text-slate-400">
@@ -107,11 +126,35 @@
       <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
         <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> ประวัติการยิงย้อนหลัง
       </h3>
-      <div id="history-list" class="space-y-3">
-        </div>
+      <div id="history-list" class="space-y-3"></div>
     </section>
   </main>
 
+  <!-- Modal: เพิ่มหัวข้อตารางซ้อม -->
+  <div id="schedule-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="card-bg p-6 rounded-2xl w-full max-w-md border border-slate-700">
+      <h3 class="text-lg font-bold mb-4">เพิ่มหัวข้อตารางซ้อม</h3>
+      <input type="text" id="schedule-title-input" placeholder="เช่น วันจันทร์, วันซ้อมยิง" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white mb-4">
+      <div class="flex gap-3 justify-end">
+        <button onclick="closeAddScheduleModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm">ยกเลิก</button>
+        <button onclick="saveSchedule()" class="px-4 py-2 accent-orange text-white rounded-lg text-sm font-semibold">บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: เพิ่มรายการซ้อมย่อย -->
+  <div id="task-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
+    <div class="card-bg p-6 rounded-2xl w-full max-w-md border border-slate-700">
+      <h3 class="text-lg font-bold mb-4">เพิ่มรายการซ้อม</h3>
+      <input type="text" id="task-input" placeholder="เช่น ยิง 3 คะแนน 100 ลูก, เลย์อัพซ้าย-ขวา" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white mb-4">
+      <div class="flex gap-3 justify-end">
+        <button onclick="closeAddTaskModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm">ยกเลิก</button>
+        <button onclick="saveTask()" class="px-4 py-2 accent-orange text-white rounded-lg text-sm font-semibold">บันทึก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: บันทึกสถิติ -->
   <div id="stat-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
     <div class="card-bg p-6 rounded-2xl w-full max-w-md border border-slate-700">
       <h3 class="text-lg font-bold mb-4">บันทึกสถิติการยิง</h3>
@@ -142,59 +185,155 @@
   </div>
 
   <script>
-    // State Management
-    let currentTab = 'schedule';
+    let activeScheduleId = null;
+
     let schedules = JSON.parse(localStorage.getItem('schedules')) || [
-      { id: 1, title: 'วันจันทร์', count: 2 }
+      { id: 1, title: 'วันจันทร์', tasks: ['เลี้ยงบอลหลบกรวย 15 นาที', 'ชู้ตระยะกลาง 50 ลูก'] }
     ];
+
     let stats = JSON.parse(localStorage.getItem('statsHistory')) || [
       { id: 1, type: 'three', typeName: 'ยิง 3 คะแนน', made: 10, attempt: 20, date: '2026-09-06' },
       { id: 2, type: 'layup', typeName: 'ใต้แป้น / เลย์อัพ', made: 12, attempt: 15, date: '2026-09-05' }
     ];
 
     function switchTab(tab) {
-      currentTab = tab;
       const navSchedule = document.getElementById('nav-schedule');
       const navStats = document.getElementById('nav-stats');
       const viewSchedule = document.getElementById('view-schedule');
+      const viewDetail = document.getElementById('view-schedule-detail');
       const viewStats = document.getElementById('view-stats');
 
       if (tab === 'schedule') {
         navSchedule.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all accent-orange text-white';
         navStats.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all text-slate-400 hover:text-white';
         viewSchedule.classList.remove('hidden');
+        viewDetail.classList.add('hidden');
         viewStats.classList.add('hidden');
       } else {
         navStats.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all accent-orange text-white';
         navSchedule.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all text-slate-400 hover:text-white';
         viewStats.classList.remove('hidden');
         viewSchedule.classList.add('hidden');
+        viewDetail.classList.add('hidden');
       }
     }
 
     function renderSchedules() {
       const container = document.getElementById('schedule-list');
       container.innerHTML = schedules.map(item => `
-        <div class="card-bg p-5 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all cursor-pointer">
+        <div onclick="viewScheduleDetail(${item.id})" class="card-bg p-5 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all cursor-pointer">
           <div class="flex justify-between items-start mb-4">
             <span class="bg-amber-900/30 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ตารางซ้อม</span>
-            <i class="fa-solid fa-chevron-right text-slate-500 text-sm"></i>
+            <div class="flex items-center gap-2">
+              <button onclick="event.stopPropagation(); deleteSchedule(${item.id})" class="text-slate-500 hover:text-red-400 text-xs p-1">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+              <i class="fa-solid fa-chevron-right text-slate-500 text-sm"></i>
+            </div>
           </div>
           <h3 class="text-xl font-bold mb-4">${item.title}</h3>
           <div class="flex justify-between items-center text-xs text-slate-400 pt-3 border-t border-slate-800">
-            <span><i class="fa-solid fa-list-check mr-1"></i> ${item.count} รายการซ้อม</span>
-            <span class="text-amber-500 hover:underline">ดูรายละเอียด</span>
+            <span><i class="fa-solid fa-list-check mr-1"></i> ${item.tasks ? item.tasks.length : 0} รายการซ้อม</span>
+            <span class="text-amber-500 font-semibold">ดูรายละเอียด</span>
           </div>
         </div>
       `).join('');
     }
 
-    function addSchedule() {
-      const title = prompt('กรอกชื่อหัวข้อตารางซ้อม (เช่น วันอังคาร):');
+    function openAddScheduleModal() {
+      document.getElementById('schedule-title-input').value = '';
+      document.getElementById('schedule-modal').classList.remove('hidden');
+      document.getElementById('schedule-modal').classList.add('flex');
+    }
+
+    function closeAddScheduleModal() {
+      document.getElementById('schedule-modal').classList.add('hidden');
+      document.getElementById('schedule-modal').classList.remove('flex');
+    }
+
+    function saveSchedule() {
+      const title = document.getElementById('schedule-title-input').value.trim();
       if (title) {
-        schedules.push({ id: Date.now(), title, count: 0 });
+        schedules.push({ id: Date.now(), title, tasks: [] });
         localStorage.setItem('schedules', JSON.stringify(schedules));
         renderSchedules();
+        closeAddScheduleModal();
+      }
+    }
+
+    function deleteSchedule(id) {
+      schedules = schedules.filter(s => s.id !== id);
+      localStorage.setItem('schedules', JSON.stringify(schedules));
+      renderSchedules();
+    }
+
+    function viewScheduleDetail(id) {
+      activeScheduleId = id;
+      const target = schedules.find(s => s.id === id);
+      if (!target) return;
+
+      document.getElementById('detail-title').innerText = target.title;
+      document.getElementById('view-schedule').classList.add('hidden');
+      document.getElementById('view-schedule-detail').classList.remove('hidden');
+      renderTasks();
+    }
+
+    function backToScheduleList() {
+      activeScheduleId = null;
+      document.getElementById('view-schedule-detail').classList.add('hidden');
+      document.getElementById('view-schedule').classList.remove('hidden');
+      renderSchedules();
+    }
+
+    function renderTasks() {
+      const target = schedules.find(s => s.id === activeScheduleId);
+      const container = document.getElementById('task-list');
+      if (!target || !target.tasks || target.tasks.length === 0) {
+        container.innerHTML = `<div class="text-slate-500 text-sm text-center py-8">ยังไม่มีรายการซ้อม กดปุ่ม "เพิ่มรายการซ้อม" ด้านบนได้เลย</div>`;
+        return;
+      }
+
+      container.innerHTML = target.tasks.map((task, idx) => `
+        <div class="card-bg p-4 rounded-xl border border-slate-800 flex justify-between items-center">
+          <span class="text-sm text-slate-200"><i class="fa-solid fa-circle-dot text-amber-500 text-xs mr-2"></i> ${task}</span>
+          <button onclick="deleteTask(${idx})" class="text-slate-500 hover:text-red-400 text-xs p-1">
+            <i class="fa-regular fa-trash-can"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function openAddTaskModal() {
+      document.getElementById('task-input').value = '';
+      document.getElementById('task-modal').classList.remove('hidden');
+      document.getElementById('task-modal').classList.add('flex');
+    }
+
+    function closeAddTaskModal() {
+      document.getElementById('task-modal').classList.add('hidden');
+      document.getElementById('task-modal').classList.remove('flex');
+    }
+
+    function saveTask() {
+      const text = document.getElementById('task-input').value.trim();
+      if (text && activeScheduleId) {
+        const target = schedules.find(s => s.id === activeScheduleId);
+        if (target) {
+          if (!target.tasks) target.tasks = [];
+          target.tasks.push(text);
+          localStorage.setItem('schedules', JSON.stringify(schedules));
+          renderTasks();
+          closeAddTaskModal();
+        }
+      }
+    }
+
+    function deleteTask(index) {
+      const target = schedules.find(s => s.id === activeScheduleId);
+      if (target && target.tasks) {
+        target.tasks.splice(index, 1);
+        localStorage.setItem('schedules', JSON.stringify(schedules));
+        renderTasks();
       }
     }
 
@@ -269,15 +408,7 @@
         return;
       }
 
-      stats.unshift({
-        id: Date.now(),
-        type,
-        typeName,
-        made,
-        attempt,
-        date: today
-      });
-
+      stats.unshift({ id: Date.now(), type, typeName, made, attempt, date: today });
       localStorage.setItem('statsHistory', JSON.stringify(stats));
       renderStats();
       closeStatModal();
@@ -289,7 +420,6 @@
       renderStats();
     }
 
-    // Initial Render
     renderSchedules();
     renderStats();
   </script>
