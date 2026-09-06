@@ -2,181 +2,173 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>บาสเกตบอล โน้ต</title>
 
-  <!-- === ส่วนนี้คือโค้ดสำหรับไอคอนแอป === -->
-  <!-- 1. ไอคอนสำหรับแถบบราวเซอร์บนคอม (Favicon) -->
   <link rel="icon" type="image/png" href="icon.png">
-  
-  <!-- 2. ไอคอนสำหรับเมื่อเพิ่มแอปไปยังหน้าจอโฮมของ iPhone/iPad (Apple Touch Icon) -->
   <link rel="apple-touch-icon" href="icon.png">
-  
-  <!-- 3. ข้อมูลสำหรับ Android/PWA (ถ้าคุณมีไฟล์ manifest.json ในอนาคต) -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="บาสเกตบอล โน้ต">
-  <!-- =================================== -->
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
     body {
       background-color: #0f172a;
       color: #f8fafc;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     .card-bg { background-color: #1e293b; }
     .accent-orange { background-color: #f97316; }
-    .accent-orange:hover { background-color: #ea580c; }
+    .accent-orange:active { background-color: #ea580c; }
+    /* ป้องกันการขยายตัวอักษรอัตโนมัติเมื่อหมุนจอ */
+    html { -webkit-text-size-adjust: 100%; }
+    input, select, button { font-size: 16px !important; } /* ป้องกัน iOS ซูมเวลากดช่อง input */
   </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="min-h-screen p-3 sm:p-6 pb-20">
 
-  <!-- Header Section -->
-  <header class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center mb-8 gap-4 border-b border-slate-800 pb-4">
-    <div class="flex items-center gap-3">
-      <!-- ไอคอนบาสเกตบอลด้านบน -->
-      <div class="w-10 h-10 accent-orange rounded-full flex items-center justify-center text-white text-xl font-bold">
-        <i class="fa-solid fa-basketball"></i>
+  <header class="max-w-5xl mx-auto flex flex-col gap-4 mb-6 border-b border-slate-800 pb-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 accent-orange rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
+          <i class="fa-solid fa-basketball"></i>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-bold tracking-tight">บาสเกตบอล โน้ต</h1>
       </div>
-      <h1 class="text-2xl font-bold">บาสเกตบอล โน้ต</h1>
     </div>
-    <div class="flex bg-slate-800 p-1 rounded-xl">
-      <button id="nav-schedule" onclick="switchTab('schedule')" class="px-5 py-2 rounded-lg font-medium text-sm transition-all accent-orange text-white">
-        <i class="fa-regular fa-calendar-days mr-2"></i>ตารางซ้อม
+    
+    <div class="grid grid-cols-2 bg-slate-800/80 p-1 rounded-xl gap-1">
+      <button id="nav-schedule" onclick="switchTab('schedule')" class="py-2.5 rounded-lg font-semibold text-sm transition-all accent-orange text-white text-center flex items-center justify-center gap-2">
+        <i class="fa-regular fa-calendar-days"></i> ตารางซ้อม
       </button>
-      <button id="nav-stats" onclick="switchTab('stats')" class="px-5 py-2 rounded-lg font-medium text-sm transition-all text-slate-400 hover:text-white">
-        <i class="fa-solid fa-chart-line mr-2"></i>สถิติการยิง
+      <button id="nav-stats" onclick="switchTab('stats')" class="py-2.5 rounded-lg font-semibold text-sm transition-all text-slate-400 hover:text-white text-center flex items-center justify-center gap-2">
+        <i class="fa-solid fa-chart-line"></i> สถิติการยิง
       </button>
     </div>
   </header>
 
-  <!-- [ส่วนที่เหลือของ MAIN และ SCRIPT ยังคงเดิม] -->
   <main class="max-w-5xl mx-auto">
-    <!-- Schedule Main View -->
     <section id="view-schedule">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold">ตารางการซ้อมทั้งหมด</h2>
-        <button onclick="openAddScheduleModal()" class="accent-orange text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:opacity-90">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">ตารางการซ้อมทั้งหมด</h2>
+        <button onclick="openAddScheduleModal()" class="accent-orange text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-md active:scale-95 transition-transform">
           <i class="fa-solid fa-plus"></i> เพิ่มหัวข้อ
         </button>
       </div>
       
-      <div id="schedule-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Dynamic Schedule Cards -->
-      </div>
+      <div id="schedule-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        </div>
     </section>
 
-    <!-- Schedule Detail View -->
     <section id="view-schedule-detail" class="hidden">
-      <div class="flex items-center justify-between mb-6">
-        <button onclick="backToScheduleList()" class="text-slate-400 hover:text-white flex items-center gap-2 text-sm font-medium">
+      <div class="flex items-center justify-between mb-4">
+        <button onclick="backToScheduleList()" class="text-slate-400 hover:text-white active:text-orange-400 flex items-center gap-2 text-sm font-medium py-1">
           <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
         </button>
-        <button onclick="openAddTaskModal()" class="accent-orange text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:opacity-90">
+        <button onclick="openAddTaskModal()" class="accent-orange text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-md active:scale-95 transition-transform">
           <i class="fa-solid fa-plus"></i> เพิ่มรายการซ้อม
         </button>
       </div>
 
-      <div class="card-bg p-6 rounded-2xl border border-slate-800 mb-6">
-        <h2 id="detail-title" class="text-2xl font-bold mb-2">วันซ้อม</h2>
+      <div class="card-bg p-4 sm:p-6 rounded-2xl border border-slate-800 mb-4 shadow-sm">
+        <h2 id="detail-title" class="text-xl sm:text-2xl font-bold mb-1">วันซ้อม</h2>
         <p class="text-xs text-slate-400">รายการท่าซ้อมและแผนการฝึกซ้อมของวันนี้</p>
       </div>
 
-      <div id="task-list" class="space-y-3">
-        <!-- Dynamic Tasks -->
-      </div>
+      <div id="task-list" class="space-y-2.5">
+        </div>
     </section>
 
-    <!-- Stats View -->
     <section id="view-stats" class="hidden">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex justify-between items-center mb-4">
         <div>
-          <h2 class="text-xl font-bold">บันทึกสถิติการยิงประตู</h2>
-          <p class="text-xs text-slate-400">สรุปผลความแม่นยำแยกตามตำแหน่งการยิง</p>
+          <h2 class="text-lg font-bold">บันทึกสถิติการยิงประตู</h2>
+          <p class="text-xs text-slate-400">สรุปผลความแม่นยำแยกตามตำแหน่ง</p>
         </div>
-        <button onclick="openStatModal()" class="accent-orange text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:opacity-90">
-          <i class="fa-solid fa-plus"></i> บันทึกสถิติใหม่
+        <button onclick="openStatModal()" class="accent-orange text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-md active:scale-95 transition-transform">
+          <i class="fa-solid fa-plus"></i> บันทึกสถิติ
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
-          <span class="bg-amber-900/40 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ใต้แป้น / เลย์อัพ</span>
-          <div class="text-3xl font-extrabold my-3" id="pct-layup">0.0%</div>
-          <div class="flex justify-between text-xs text-slate-400">
-            <span>ยิงเข้า: <strong class="text-emerald-400" id="made-layup">0</strong> ลูก</span>
-            <span>ยิงทั้งหมด: <strong class="text-white" id="total-layup">0</strong> ลูก</span>
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="card-bg p-4 rounded-2xl border border-slate-800">
+          <span class="bg-amber-900/40 text-amber-500 text-[10px] sm:text-xs px-2 py-0.5 rounded font-semibold inline-block mb-1">ใต้แป้น/เลย์อัพ</span>
+          <div class="text-2xl sm:text-3xl font-extrabold my-1" id="pct-layup">0.0%</div>
+          <div class="flex flex-col sm:flex-row justify-between text-[11px] text-slate-400 gap-0.5">
+            <span>เข้า: <strong class="text-emerald-400" id="made-layup">0</strong></span>
+            <span>ทั้งหมด: <strong class="text-white" id="total-layup">0</strong></span>
           </div>
         </div>
 
-        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
-          <span class="bg-amber-900/40 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ระยะกลาง (Mid-range)</span>
-          <div class="text-3xl font-extrabold my-3" id="pct-midrange">0.0%</div>
-          <div class="flex justify-between text-xs text-slate-400">
-            <span>ยิงเข้า: <strong class="text-emerald-400" id="made-midrange">0</strong> ลูก</span>
-            <span>ยิงทั้งหมด: <strong class="text-white" id="total-midrange">0</strong> ลูก</span>
+        <div class="card-bg p-4 rounded-2xl border border-slate-800">
+          <span class="bg-amber-900/40 text-amber-500 text-[10px] sm:text-xs px-2 py-0.5 rounded font-semibold inline-block mb-1">ระยะกลาง</span>
+          <div class="text-2xl sm:text-3xl font-extrabold my-1" id="pct-midrange">0.0%</div>
+          <div class="flex flex-col sm:flex-row justify-between text-[11px] text-slate-400 gap-0.5">
+            <span>เข้า: <strong class="text-emerald-400" id="made-midrange">0</strong></span>
+            <span>ทั้งหมด: <strong class="text-white" id="total-midrange">0</strong></span>
           </div>
         </div>
 
-        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
-          <span class="bg-purple-900/40 text-purple-400 text-xs px-2.5 py-1 rounded-md font-semibold">ยิง 3 คะแนน</span>
-          <div class="text-3xl font-extrabold my-3" id="pct-three">0.0%</div>
-          <div class="flex justify-between text-xs text-slate-400">
-            <span>ยิงเข้า: <strong class="text-emerald-400" id="made-three">0</strong> ลูก</span>
-            <span>ยิงทั้งหมด: <strong class="text-white" id="total-three">0</strong> ลูก</span>
+        <div class="card-bg p-4 rounded-2xl border border-slate-800">
+          <span class="bg-purple-900/40 text-purple-400 text-[10px] sm:text-xs px-2 py-0.5 rounded font-semibold inline-block mb-1">ยิง 3 คะแนน</span>
+          <div class="text-2xl sm:text-3xl font-extrabold my-1" id="pct-three">0.0%</div>
+          <div class="flex flex-col sm:flex-row justify-between text-[11px] text-slate-400 gap-0.5">
+            <span>เข้า: <strong class="text-emerald-400" id="made-three">0</strong></span>
+            <span>ทั้งหมด: <strong class="text-white" id="total-three">0</strong></span>
           </div>
         </div>
 
-        <div class="card-bg p-5 rounded-2xl border border-slate-800 relative">
-          <span class="bg-blue-900/40 text-blue-400 text-xs px-2.5 py-1 rounded-md font-semibold">ลูกโทษ (Free Throws)</span>
-          <div class="text-3xl font-extrabold my-3" id="pct-freethrow">0.0%</div>
-          <div class="flex justify-between text-xs text-slate-400">
-            <span>ยิงเข้า: <strong class="text-emerald-400" id="made-freethrow">0</strong> ลูก</span>
-            <span>ยิงทั้งหมด: <strong class="text-white" id="total-freethrow">0</strong> ลูก</span>
+        <div class="card-bg p-4 rounded-2xl border border-slate-800">
+          <span class="bg-blue-900/40 text-blue-400 text-[10px] sm:text-xs px-2 py-0.5 rounded font-semibold inline-block mb-1">ลูกโทษ</span>
+          <div class="text-2xl sm:text-3xl font-extrabold my-1" id="pct-freethrow">0.0%</div>
+          <div class="flex flex-col sm:flex-row justify-between text-[11px] text-slate-400 gap-0.5">
+            <span>เข้า: <strong class="text-emerald-400" id="made-freethrow">0</strong></span>
+            <span>ทั้งหมด: <strong class="text-white" id="total-freethrow">0</strong></span>
           </div>
         </div>
       </div>
 
-      <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+      <h3 class="text-base font-bold mb-3 flex items-center gap-2">
         <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> ประวัติการยิงย้อนหลัง
       </h3>
-      <div id="history-list" class="space-y-3"></div>
+      <div id="history-list" class="space-y-2.5"></div>
     </section>
   </main>
 
-  <!-- Modal: เพิ่มหัวข้อตารางซ้อม -->
-  <div id="schedule-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
-    <div class="card-bg p-6 rounded-2xl w-full max-w-md border border-slate-700">
-      <h3 class="text-lg font-bold mb-4">เพิ่มหัวข้อตารางซ้อม</h3>
-      <input type="text" id="schedule-title-input" placeholder="เช่น วันจันทร์, วันซ้อมยิง" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white mb-4">
-      <div class="flex gap-3 justify-end">
-        <button onclick="closeAddScheduleModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm">ยกเลิก</button>
-        <button onclick="saveSchedule()" class="px-4 py-2 accent-orange text-white rounded-lg text-sm font-semibold">บันทึก</button>
+  <div id="schedule-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+    <div class="card-bg p-5 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl">
+      <h3 class="text-base font-bold mb-3">เพิ่มหัวข้อตารางซ้อม</h3>
+      <input type="text" id="schedule-title-input" placeholder="เช่น วันจันทร์, วันซ้อมยิง" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white mb-4 outline-none focus:border-orange-500">
+      <div class="flex gap-2 justify-end">
+        <button onclick="closeAddScheduleModal()" class="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium active:bg-slate-700">ยกเลิก</button>
+        <button onclick="saveSchedule()" class="px-4 py-2.5 accent-orange text-white rounded-xl text-sm font-semibold active:scale-95">บันทึก</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal: เพิ่มรายการซ้อมย่อย -->
-  <div id="task-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
-    <div class="card-bg p-6 rounded-2xl w-full max-w-md border border-slate-700">
-      <h3 class="text-lg font-bold mb-4">เพิ่มรายการซ้อม</h3>
-      <input type="text" id="task-input" placeholder="เช่น ยิง 3 คะแนน 100 ลูก, เลย์อัพซ้าย-ขวา" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white mb-4">
-      <div class="flex gap-3 justify-end">
-        <button onclick="closeAddTaskModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm">ยกเลิก</button>
-        <button onclick="saveTask()" class="px-4 py-2 accent-orange text-white rounded-lg text-sm font-semibold">บันทึก</button>
+  <div id="task-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+    <div class="card-bg p-5 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl">
+      <h3 class="text-base font-bold mb-3">เพิ่มรายการซ้อม</h3>
+      <input type="text" id="task-input" placeholder="เช่น ชู้ต 3 แต้ม 50 ลูก" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white mb-4 outline-none focus:border-orange-500">
+      <div class="flex gap-2 justify-end">
+        <button onclick="closeAddTaskModal()" class="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium active:bg-slate-700">ยกเลิก</button>
+        <button onclick="saveTask()" class="px-4 py-2.5 accent-orange text-white rounded-xl text-sm font-semibold active:scale-95">บันทึก</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal: บันทึกสถิติ -->
-  <div id="stat-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center p-4 z-50">
-    <div class="card-bg p-6 rounded-2xl w-full max-w-md border border-slate-700">
-      <h3 class="text-lg font-bold mb-4">บันทึกสถิติการยิง</h3>
-      <div class="space-y-4">
+  <div id="stat-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+    <div class="card-bg p-5 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <h3 class="text-base font-bold mb-3">บันทึกสถิติการยิง</h3>
+      <div class="space-y-3">
         <div>
           <label class="text-xs text-slate-400 block mb-1">ประเภทการยิง</label>
-          <select id="stat-type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white">
+          <select id="stat-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-orange-500">
             <option value="layup">ใต้แป้น / เลย์อัพ</option>
             <option value="midrange">ระยะกลาง (Mid-range)</option>
             <option value="three">ยิง 3 คะแนน</option>
@@ -185,16 +177,16 @@
         </div>
         <div>
           <label class="text-xs text-slate-400 block mb-1">ยิงเข้า (ลูก)</label>
-          <input type="number" id="stat-made" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white" value="10">
+          <input type="number" inputmode="numeric" id="stat-made" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-orange-500" value="10">
         </div>
         <div>
           <label class="text-xs text-slate-400 block mb-1">ยิงทั้งหมด (ลูก)</label>
-          <input type="number" id="stat-attempt" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white" value="20">
+          <input type="number" inputmode="numeric" id="stat-attempt" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-orange-500" value="20">
         </div>
       </div>
-      <div class="flex gap-3 justify-end mt-6">
-        <button onclick="closeStatModal()" class="px-4 py-2 bg-slate-800 text-slate-300 rounded-lg text-sm">ยกเลิก</button>
-        <button onclick="saveStat()" class="px-4 py-2 accent-orange text-white rounded-lg text-sm font-semibold">บันทึก</button>
+      <div class="flex gap-2 justify-end mt-5">
+        <button onclick="closeStatModal()" class="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium active:bg-slate-700">ยกเลิก</button>
+        <button onclick="saveStat()" class="px-4 py-2.5 accent-orange text-white rounded-xl text-sm font-semibold active:scale-95">บันทึก</button>
       </div>
     </div>
   </div>
@@ -203,12 +195,11 @@
     let activeScheduleId = null;
 
     let schedules = JSON.parse(localStorage.getItem('schedules')) || [
-      { id: 1, title: 'วันจันทร์', tasks: ['เลี้ยงบอลหลบกรวย 15 นาที', 'ชู้ตระยะกลาง 50 ลูก'] }
+      { id: 1, title: 'วันจันทร์', tasks: ['เลี้ยงบอล 15 นาที', 'ชู้ตระยะกลาง 50 ลูก'] }
     ];
 
     let stats = JSON.parse(localStorage.getItem('statsHistory')) || [
-      { id: 1, type: 'three', typeName: 'ยิง 3 คะแนน', made: 10, attempt: 20, date: '2026-09-06' },
-      { id: 2, type: 'layup', typeName: 'ใต้แป้น / เลย์อัพ', made: 12, attempt: 15, date: '2026-09-05' }
+      { id: 1, type: 'three', typeName: 'ยิง 3 คะแนน', made: 10, attempt: 20, date: '2026-09-06' }
     ];
 
     function switchTab(tab) {
@@ -219,14 +210,14 @@
       const viewStats = document.getElementById('view-stats');
 
       if (tab === 'schedule') {
-        navSchedule.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all accent-orange text-white';
-        navStats.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all text-slate-400 hover:text-white';
+        navSchedule.className = 'py-2.5 rounded-lg font-semibold text-sm transition-all accent-orange text-white text-center flex items-center justify-center gap-2';
+        navStats.className = 'py-2.5 rounded-lg font-semibold text-sm transition-all text-slate-400 hover:text-white text-center flex items-center justify-center gap-2';
         viewSchedule.classList.remove('hidden');
         viewDetail.classList.add('hidden');
         viewStats.classList.add('hidden');
       } else {
-        navStats.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all accent-orange text-white';
-        navSchedule.className = 'px-5 py-2 rounded-lg font-medium text-sm transition-all text-slate-400 hover:text-white';
+        navStats.className = 'py-2.5 rounded-lg font-semibold text-sm transition-all accent-orange text-white text-center flex items-center justify-center gap-2';
+        navSchedule.className = 'py-2.5 rounded-lg font-semibold text-sm transition-all text-slate-400 hover:text-white text-center flex items-center justify-center gap-2';
         viewStats.classList.remove('hidden');
         viewSchedule.classList.add('hidden');
         viewDetail.classList.add('hidden');
@@ -235,21 +226,25 @@
 
     function renderSchedules() {
       const container = document.getElementById('schedule-list');
+      if (schedules.length === 0) {
+        container.innerHTML = `<div class="text-slate-500 text-sm text-center py-8 col-span-full">ยังไม่มีตารางซ้อม กดปุ่ม "+ เพิ่มหัวข้อ" ด้านบน</div>`;
+        return;
+      }
       container.innerHTML = schedules.map(item => `
-        <div onclick="viewScheduleDetail(${item.id})" class="card-bg p-5 rounded-2xl border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition-all cursor-pointer relative">
-          <div class="flex justify-between items-start mb-4">
-            <span class="bg-amber-900/30 text-amber-500 text-xs px-2.5 py-1 rounded-md font-semibold">ตารางซ้อม</span>
-            <div class="flex items-center gap-2">
-              <button onclick="event.stopPropagation(); deleteSchedule(${item.id})" class="text-slate-500 hover:text-red-400 text-xs p-1">
+        <div onclick="viewScheduleDetail(${item.id})" class="card-bg p-4 rounded-2xl border border-slate-800 flex flex-col justify-between active:scale-[0.98] transition-all cursor-pointer">
+          <div class="flex justify-between items-start mb-3">
+            <span class="bg-amber-900/40 text-amber-500 text-[11px] px-2.5 py-0.5 rounded-md font-semibold">ตารางซ้อม</span>
+            <div class="flex items-center gap-3">
+              <button onclick="event.stopPropagation(); deleteSchedule(${item.id})" class="text-slate-500 active:text-red-400 text-sm p-1">
                 <i class="fa-regular fa-trash-can"></i>
               </button>
-              <i class="fa-solid fa-chevron-right text-slate-500 text-sm"></i>
+              <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
             </div>
           </div>
-          <h3 class="text-xl font-bold mb-4">${item.title}</h3>
-          <div class="flex justify-between items-center text-xs text-slate-400 pt-3 border-t border-slate-800">
-            <span><i class="fa-solid fa-list-check mr-1"></i> ${item.tasks ? item.tasks.length : 0} รายการซ้อม</span>
-            <span class="text-amber-500 font-semibold">ดูรายละเอียด</span>
+          <h3 class="text-lg font-bold mb-3 text-white">${item.title}</h3>
+          <div class="flex justify-between items-center text-xs text-slate-400 pt-2.5 border-t border-slate-800">
+            <span><i class="fa-solid fa-list-check mr-1 text-amber-500"></i> ${item.tasks ? item.tasks.length : 0} รายการ</span>
+            <span class="text-orange-400 font-semibold">ดูรายละเอียด</span>
           </div>
         </div>
       `).join('');
@@ -277,7 +272,7 @@
     }
 
     function deleteSchedule(id) {
-      if(confirm('คุณต้องการลบตารางซ้อมนี้ใช่หรือไม่?')) {
+      if(confirm('ลบตารางซ้อมนี้ใช่หรือไม่?')) {
         schedules = schedules.filter(s => s.id !== id);
         localStorage.setItem('schedules', JSON.stringify(schedules));
         renderSchedules();
@@ -306,14 +301,14 @@
       const target = schedules.find(s => s.id === activeScheduleId);
       const container = document.getElementById('task-list');
       if (!target || !target.tasks || target.tasks.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-sm text-center py-8">ยังไม่มีรายการซ้อม กดปุ่ม "เพิ่มรายการซ้อม" ด้านบนได้เลย</div>`;
+        container.innerHTML = `<div class="text-slate-500 text-sm text-center py-8">ยังไม่มีรายการซ้อม กดปุ่ม "+ เพิ่มรายการซ้อม"</div>`;
         return;
       }
 
       container.innerHTML = target.tasks.map((task, idx) => `
-        <div class="card-bg p-4 rounded-xl border border-slate-800 flex justify-between items-center">
-          <span class="text-sm text-slate-200"><i class="fa-solid fa-circle-dot text-amber-500 text-xs mr-2"></i> ${task}</span>
-          <button onclick="deleteTask(${idx})" class="text-slate-500 hover:text-red-400 text-xs p-1">
+        <div class="card-bg p-3.5 rounded-xl border border-slate-800 flex justify-between items-center">
+          <span class="text-sm text-slate-200 pr-2"><i class="fa-solid fa-circle-dot text-amber-500 text-xs mr-2"></i> ${task}</span>
+          <button onclick="deleteTask(${idx})" class="text-slate-500 active:text-red-400 text-sm p-1.5 flex-shrink-0">
             <i class="fa-regular fa-trash-can"></i>
           </button>
         </div>
@@ -346,7 +341,7 @@
     }
 
     function deleteTask(index) {
-      if(confirm('คุณต้องการลบรายการซ้อมนี้ใช่หรือไม่?')) {
+      if(confirm('ลบรายการซ้อมนี้ใช่หรือไม่?')) {
         const target = schedules.find(s => s.id === activeScheduleId);
         if (target && target.tasks) {
           target.tasks.splice(index, 1);
@@ -382,20 +377,24 @@
       });
 
       const historyContainer = document.getElementById('history-list');
+      if (stats.length === 0) {
+        historyContainer.innerHTML = `<div class="text-slate-500 text-sm text-center py-6">ยังไม่มีประวัติการยิงประตู</div>`;
+        return;
+      }
       historyContainer.innerHTML = stats.map(s => {
         const pct = s.attempt > 0 ? ((s.made / s.attempt) * 100).toFixed(1) : '0.0';
         return `
-          <div class="card-bg p-4 rounded-xl border border-slate-800 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-              <span class="text-xs bg-slate-800 text-slate-400 px-3 py-1.5 rounded-lg border border-slate-700">${s.date}</span>
+          <div class="card-bg p-3.5 rounded-xl border border-slate-800 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+              <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded border border-slate-700">${s.date}</span>
               <div>
-                <div class="font-bold text-sm">${s.typeName}</div>
-                <div class="text-xs text-slate-400">ยิงเข้า <span class="text-emerald-400 font-semibold">${s.made}</span> จาก <span class="text-white font-semibold">${s.attempt}</span> ลูก</div>
+                <div class="font-bold text-xs sm:text-sm text-white">${s.typeName}</div>
+                <div class="text-[11px] text-slate-400">เข้า <span class="text-emerald-400 font-semibold">${s.made}</span> / <span class="text-white font-semibold">${s.attempt}</span></div>
               </div>
             </div>
-            <div class="flex items-center gap-4">
-              <span class="text-emerald-400 font-bold text-lg">${pct}%</span>
-              <button onclick="deleteStat(${s.id})" class="text-slate-500 hover:text-red-400 transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-emerald-400 font-bold text-base sm:text-lg">${pct}%</span>
+              <button onclick="deleteStat(${s.id})" class="text-slate-500 active:text-red-400 text-sm p-1">
                 <i class="fa-regular fa-trash-can"></i>
               </button>
             </div>
@@ -434,7 +433,7 @@
     }
 
     function deleteStat(id) {
-      if(confirm('คุณต้องการลบสถิตินี้ใช่หรือไม่?')) {
+      if(confirm('ลบสถิตินี้ใช่หรือไม่?')) {
         stats = stats.filter(s => s.id !== id);
         localStorage.setItem('statsHistory', JSON.stringify(stats));
         renderStats();
