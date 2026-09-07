@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เครื่องคิดเลขคำนวณส่วนลด</title>
-    <!-- โหลด Tailwind CSS ผ่าน CDN -->
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -14,20 +14,39 @@
 <body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
     <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
-        <h1 class="text-2xl font-bold text-slate-800 text-center mb-6">🏷️ เครื่องคำนวณส่วนลด</h1>
+        <!-- หัวข้อพร้อมไอคอนเครื่องคิดเลข SVG -->
+        <div class="flex items-center justify-center gap-2 mb-6">
+            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            <h1 class="text-2xl font-bold text-slate-800">เครื่องคำนวณส่วนลด</h1>
+        </div>
         
         <!-- ฟอร์มกรอกข้อมูล -->
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium text-slate-600 mb-1">ราคาก่อนลด (บาท)</label>
-                <input type="number" id="originalPrice" placeholder="เช่น 1000" 
+                <input type="number" id="originalPrice" placeholder="เช่น 1000" oninput="calculateDiscount()"
                     class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-slate-600 mb-1">ส่วนลด (%)</label>
-                <input type="number" id="discountPercent" placeholder="เช่น 20" 
+                <input type="number" id="discountPercent" placeholder="เช่น 20" oninput="calculateDiscount()"
                     class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
+                
+                <!-- ปุ่มเปอร์เซ็นต์ด่วนที่ใช้บ่อย -->
+                <div class="mt-2">
+                    <span class="text-xs text-slate-400 block mb-1">ส่วนลดที่ใช้บ่อย:</span>
+                    <div class="grid grid-cols-6 gap-1.5">
+                        <button type="button" onclick="setDiscount(5)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">5%</button>
+                        <button type="button" onclick="setDiscount(10)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">10%</button>
+                        <button type="button" onclick="setDiscount(15)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">15%</button>
+                        <button type="button" onclick="setDiscount(20)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">20%</button>
+                        <button type="button" onclick="setDiscount(30)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">30%</button>
+                        <button type="button" onclick="setDiscount(50)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">50%</button>
+                    </div>
+                </div>
             </div>
 
             <button onclick="calculateDiscount()" 
@@ -40,22 +59,32 @@
         <div id="resultBox" class="mt-6 pt-6 border-t border-slate-100 space-y-3 hidden">
             <div class="flex justify-between items-center text-slate-600">
                 <span>ประหยัดไปได้:</span>
-                <span id="savedAmount" class="font-semibold text-emerald-600 text-lg">0 ฿</span>
+                <span id="savedAmount" class="font-semibold text-emerald-600 text-lg">0.00 บาท</span>
             </div>
             <div class="flex justify-between items-center text-slate-800 font-bold text-xl">
                 <span>ราคาที่ต้องจ่าย:</span>
-                <span id="finalPrice" class="text-indigo-600 text-2xl">0 ฿</span>
+                <span id="finalPrice" class="text-indigo-600 text-2xl">0.00 บาท</span>
             </div>
         </div>
     </div>
 
     <script>
+        // ฟังก์ชันตั้งค่าเปอร์เซ็นต์ด่วน
+        function setDiscount(val) {
+            document.getElementById('discountPercent').value = val;
+            calculateDiscount();
+        }
+
+        // ฟังก์ชันคำนวณ
         function calculateDiscount() {
-            const price = parseFloat(document.getElementById('originalPrice').value);
-            const discount = parseFloat(document.getElementById('discountPercent').value);
+            const priceVal = document.getElementById('originalPrice').value;
+            const discountVal = document.getElementById('discountPercent').value;
+            
+            const price = parseFloat(priceVal);
+            const discount = parseFloat(discountVal);
 
             if (isNaN(price) || price <= 0) {
-                alert('กรุณากรอกราคาสินค้าให้ถูกต้อง');
+                document.getElementById('resultBox').classList.add('hidden');
                 return;
             }
 
@@ -63,7 +92,6 @@
             const saved = (price * discountRate) / 100;
             const final = price - saved;
 
-            // แสดงผลลัพธ์
             document.getElementById('savedAmount').innerText = saved.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
             document.getElementById('finalPrice').innerText = final.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
             
