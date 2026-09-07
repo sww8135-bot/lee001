@@ -1,447 +1,74 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>บาสเกตบอล โน้ต</title>
-
-  <link rel="icon" type="image/png" href="icon.png">
-  <link rel="apple-touch-icon" href="icon.png">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="บาสเกตบอล โน้ต">
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    * {
-      -webkit-tap-highlight-color: transparent;
-    }
-    body {
-      background-color: #0f172a;
-      color: #f8fafc;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    .card-bg { background-color: #1e293b; }
-    .accent-orange { background-color: #f97316; }
-    .accent-orange:active { background-color: #ea580c; }
-    /* ป้องกันการขยายตัวอักษรอัตโนมัติเมื่อหมุนจอ */
-    html { -webkit-text-size-adjust: 100%; }
-    input, select, button { font-size: 16px !important; } /* ป้องกัน iOS ซูมเวลากดช่อง input */
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เครื่องคิดเลขคำนวณส่วนลด</title>
+    <!-- โหลด Tailwind CSS ผ่าน CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+    </style>
 </head>
-<body class="min-h-screen p-3 sm:p-6 pb-20">
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
-  <header class="max-w-5xl mx-auto flex flex-col gap-4 mb-6 border-b border-slate-800 pb-4">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 accent-orange rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
-          <i class="fa-solid fa-basketball"></i>
-        </div>
-        <h1 class="text-xl sm:text-2xl font-bold tracking-tight">บาสเกตบอล โน้ต</h1>
-      </div>
-    </div>
-    
-    <div class="grid grid-cols-2 bg-slate-800/80 p-1 rounded-xl gap-1">
-      <button id="nav-schedule" onclick="switchTab('schedule')" class="py-2.5 rounded-lg font-semibold text-sm transition-all accent-orange text-white text-center flex items-center justify-center gap-2">
-        <i class="fa-regular fa-calendar-days"></i> ตารางซ้อม
-      </button>
-      <button id="nav-stats" onclick="switchTab('stats')" class="py-2.5 rounded-lg font-semibold text-sm transition-all text-slate-400 hover:text-white text-center flex items-center justify-center gap-2">
-        <i class="fa-solid fa-chart-line"></i> สถิติการยิง
-      </button>
-    </div>
-  </header>
-
-  <main class="max-w-5xl mx-auto">
-    <section id="view-schedule">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold">ตารางการซ้อมทั้งหมด</h2>
-        <button onclick="openAddScheduleModal()" class="accent-orange text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-md active:scale-95 transition-transform">
-          <i class="fa-solid fa-plus"></i> เพิ่มหัวข้อ
-        </button>
-      </div>
-      
-      <div id="schedule-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        </div>
-    </section>
-
-    <section id="view-schedule-detail" class="hidden">
-      <div class="flex items-center justify-between mb-4">
-        <button onclick="backToScheduleList()" class="text-slate-400 hover:text-white active:text-orange-400 flex items-center gap-2 text-sm font-medium py-1">
-          <i class="fa-solid fa-arrow-left"></i> ย้อนกลับ
-        </button>
-        <button onclick="openAddTaskModal()" class="accent-orange text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-md active:scale-95 transition-transform">
-          <i class="fa-solid fa-plus"></i> เพิ่มรายการซ้อม
-        </button>
-      </div>
-
-      <div class="card-bg p-4 sm:p-6 rounded-2xl border border-slate-800 mb-4 shadow-sm">
-        <h2 id="detail-title" class="text-xl sm:text-2xl font-bold mb-1">วันซ้อม</h2>
-        <p class="text-xs text-slate-400">รายการท่าซ้อมและแผนการฝึกซ้อมของวันนี้</p>
-      </div>
-
-      <div id="task-list" class="space-y-2.5">
-        </div>
-    </section>
-
-    <section id="view-stats" class="hidden">
-      <div class="flex justify-between items-center mb-4">
-        <div>
-          <h2 class="text-lg font-bold">บันทึกสถิติการยิงประตู</h2>
-          <p class="text-xs text-slate-400">สรุปผลความแม่นยำแยกตามตำแหน่ง</p>
-        </div>
-        <button onclick="openStatModal()" class="accent-orange text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-md active:scale-95 transition-transform">
-          <i class="fa-solid fa-plus"></i> บันทึกสถิติ
-        </button>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 mb-6">
-        <div class="card-bg p-4 rounded-2xl border border-slate-800">
-          <span class="bg-amber-900/40 text-amber-500 text-[10px] sm:text-xs px-2 py-0.5 rounded font-semibold inline-block mb-1">ใต้แป้น/เลย์อัพ</span>
-          <div class="text-2xl sm:text-3xl font-extrabold my-1" id="pct-layup">0.0%</div>
-          <div class="flex flex-col sm:flex-row justify-between text-[11px] text-slate-400 gap-0.5">
-            <span>เข้า: <strong class="text-emerald-400" id="made-layup">0</strong></span>
-            <span>ทั้งหมด: <strong class="text-white" id="total-layup">0</strong></span>
-          </div>
-        </div>
-
-        <div class="card-bg p-4 rounded-2xl border border-slate-800">
-          <span class="bg-amber-900/40 text-amber-500 text-[10px] sm:text-xs px-2 py-0.5 rounded font-semibold inline-block mb-1">ระยะกลาง</span>
-          <div class="text-2xl sm:text-3xl font-extrabold my-1" id="pct-midrange">0.0%</div>
-          <div class="flex flex-col sm:flex-row justify-between text-[11px] text-slate-400 gap-0.5">
-            <span>เข้า: <strong class="text-emerald-400" id="made-midrange">0</strong></span>
-            <span>ทั้งหมด: <strong class="text-white" id="total-midrange">0</strong></span>
-          </div>
-        </div>
-
-        <div class="card-bg p-4 rounded-2xl border border-slate-800">
-          <span class="bg-purple-900/40 text-purple-400 text-[10px] sm:text-xs px-2 py-0.5 rounded font-semibold inline-block mb-1">ยิง 3 คะแนน</span>
-          <div class="text-2xl sm:text-3xl font-extrabold my-1" id="pct-three">0.0%</div>
-          <div class="flex flex-col sm:flex-row justify-between text-[11px] text-slate-400 gap-0.5">
-            <span>เข้า: <strong class="text-emerald-400" id="made-three">0</strong></span>
-            <span>ทั้งหมด: <strong class="text-white" id="total-three">0</strong></span>
-          </div>
-        </div>
-
-        <div class="card-bg p-4 rounded-2xl border border-slate-800">
-          <span class="bg-blue-900/40 text-blue-400 text-[10px] sm:text-xs px-2 py-0.5 rounded font-semibold inline-block mb-1">ลูกโทษ</span>
-          <div class="text-2xl sm:text-3xl font-extrabold my-1" id="pct-freethrow">0.0%</div>
-          <div class="flex flex-col sm:flex-row justify-between text-[11px] text-slate-400 gap-0.5">
-            <span>เข้า: <strong class="text-emerald-400" id="made-freethrow">0</strong></span>
-            <span>ทั้งหมด: <strong class="text-white" id="total-freethrow">0</strong></span>
-          </div>
-        </div>
-      </div>
-
-      <h3 class="text-base font-bold mb-3 flex items-center gap-2">
-        <i class="fa-solid fa-clock-rotate-left text-orange-500"></i> ประวัติการยิงย้อนหลัง
-      </h3>
-      <div id="history-list" class="space-y-2.5"></div>
-    </section>
-  </main>
-
-  <div id="schedule-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
-    <div class="card-bg p-5 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl">
-      <h3 class="text-base font-bold mb-3">เพิ่มหัวข้อตารางซ้อม</h3>
-      <input type="text" id="schedule-title-input" placeholder="เช่น วันจันทร์, วันซ้อมยิง" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white mb-4 outline-none focus:border-orange-500">
-      <div class="flex gap-2 justify-end">
-        <button onclick="closeAddScheduleModal()" class="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium active:bg-slate-700">ยกเลิก</button>
-        <button onclick="saveSchedule()" class="px-4 py-2.5 accent-orange text-white rounded-xl text-sm font-semibold active:scale-95">บันทึก</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="task-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
-    <div class="card-bg p-5 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl">
-      <h3 class="text-base font-bold mb-3">เพิ่มรายการซ้อม</h3>
-      <input type="text" id="task-input" placeholder="เช่น ชู้ต 3 แต้ม 50 ลูก" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white mb-4 outline-none focus:border-orange-500">
-      <div class="flex gap-2 justify-end">
-        <button onclick="closeAddTaskModal()" class="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium active:bg-slate-700">ยกเลิก</button>
-        <button onclick="saveTask()" class="px-4 py-2.5 accent-orange text-white rounded-xl text-sm font-semibold active:scale-95">บันทึก</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="stat-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
-    <div class="card-bg p-5 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
-      <h3 class="text-base font-bold mb-3">บันทึกสถิติการยิง</h3>
-      <div class="space-y-3">
-        <div>
-          <label class="text-xs text-slate-400 block mb-1">ประเภทการยิง</label>
-          <select id="stat-type" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-orange-500">
-            <option value="layup">ใต้แป้น / เลย์อัพ</option>
-            <option value="midrange">ระยะกลาง (Mid-range)</option>
-            <option value="three">ยิง 3 คะแนน</option>
-            <option value="freethrow">ลูกโทษ (Free Throws)</option>
-          </select>
-        </div>
-        <div>
-          <label class="text-xs text-slate-400 block mb-1">ยิงเข้า (ลูก)</label>
-          <input type="number" inputmode="numeric" id="stat-made" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-orange-500" value="10">
-        </div>
-        <div>
-          <label class="text-xs text-slate-400 block mb-1">ยิงทั้งหมด (ลูก)</label>
-          <input type="number" inputmode="numeric" id="stat-attempt" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-sm text-white outline-none focus:border-orange-500" value="20">
-        </div>
-      </div>
-      <div class="flex gap-2 justify-end mt-5">
-        <button onclick="closeStatModal()" class="px-4 py-2.5 bg-slate-800 text-slate-300 rounded-xl text-sm font-medium active:bg-slate-700">ยกเลิก</button>
-        <button onclick="saveStat()" class="px-4 py-2.5 accent-orange text-white rounded-xl text-sm font-semibold active:scale-95">บันทึก</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let activeScheduleId = null;
-
-    let schedules = JSON.parse(localStorage.getItem('schedules')) || [
-      { id: 1, title: 'วันจันทร์', tasks: ['เลี้ยงบอล 15 นาที', 'ชู้ตระยะกลาง 50 ลูก'] }
-    ];
-
-    let stats = JSON.parse(localStorage.getItem('statsHistory')) || [
-      { id: 1, type: 'three', typeName: 'ยิง 3 คะแนน', made: 10, attempt: 20, date: '2026-09-06' }
-    ];
-
-    function switchTab(tab) {
-      const navSchedule = document.getElementById('nav-schedule');
-      const navStats = document.getElementById('nav-stats');
-      const viewSchedule = document.getElementById('view-schedule');
-      const viewDetail = document.getElementById('view-schedule-detail');
-      const viewStats = document.getElementById('view-stats');
-
-      if (tab === 'schedule') {
-        navSchedule.className = 'py-2.5 rounded-lg font-semibold text-sm transition-all accent-orange text-white text-center flex items-center justify-center gap-2';
-        navStats.className = 'py-2.5 rounded-lg font-semibold text-sm transition-all text-slate-400 hover:text-white text-center flex items-center justify-center gap-2';
-        viewSchedule.classList.remove('hidden');
-        viewDetail.classList.add('hidden');
-        viewStats.classList.add('hidden');
-      } else {
-        navStats.className = 'py-2.5 rounded-lg font-semibold text-sm transition-all accent-orange text-white text-center flex items-center justify-center gap-2';
-        navSchedule.className = 'py-2.5 rounded-lg font-semibold text-sm transition-all text-slate-400 hover:text-white text-center flex items-center justify-center gap-2';
-        viewStats.classList.remove('hidden');
-        viewSchedule.classList.add('hidden');
-        viewDetail.classList.add('hidden');
-      }
-    }
-
-    function renderSchedules() {
-      const container = document.getElementById('schedule-list');
-      if (schedules.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-sm text-center py-8 col-span-full">ยังไม่มีตารางซ้อม กดปุ่ม "+ เพิ่มหัวข้อ" ด้านบน</div>`;
-        return;
-      }
-      container.innerHTML = schedules.map(item => `
-        <div onclick="viewScheduleDetail(${item.id})" class="card-bg p-4 rounded-2xl border border-slate-800 flex flex-col justify-between active:scale-[0.98] transition-all cursor-pointer">
-          <div class="flex justify-between items-start mb-3">
-            <span class="bg-amber-900/40 text-amber-500 text-[11px] px-2.5 py-0.5 rounded-md font-semibold">ตารางซ้อม</span>
-            <div class="flex items-center gap-3">
-              <button onclick="event.stopPropagation(); deleteSchedule(${item.id})" class="text-slate-500 active:text-red-400 text-sm p-1">
-                <i class="fa-regular fa-trash-can"></i>
-              </button>
-              <i class="fa-solid fa-chevron-right text-slate-500 text-xs"></i>
+    <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+        <h1 class="text-2xl font-bold text-slate-800 text-center mb-6">🏷️ เครื่องคำนวณส่วนลด</h1>
+        
+        <!-- ฟอร์มกรอกข้อมูล -->
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-600 mb-1">ราคาก่อนลด (บาท)</label>
+                <input type="number" id="originalPrice" placeholder="เช่น 1000" 
+                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
             </div>
-          </div>
-          <h3 class="text-lg font-bold mb-3 text-white">${item.title}</h3>
-          <div class="flex justify-between items-center text-xs text-slate-400 pt-2.5 border-t border-slate-800">
-            <span><i class="fa-solid fa-list-check mr-1 text-amber-500"></i> ${item.tasks ? item.tasks.length : 0} รายการ</span>
-            <span class="text-orange-400 font-semibold">ดูรายละเอียด</span>
-          </div>
-        </div>
-      `).join('');
-    }
 
-    function openAddScheduleModal() {
-      document.getElementById('schedule-title-input').value = '';
-      document.getElementById('schedule-modal').classList.remove('hidden');
-      document.getElementById('schedule-modal').classList.add('flex');
-    }
-
-    function closeAddScheduleModal() {
-      document.getElementById('schedule-modal').classList.add('hidden');
-      document.getElementById('schedule-modal').classList.remove('flex');
-    }
-
-    function saveSchedule() {
-      const title = document.getElementById('schedule-title-input').value.trim();
-      if (title) {
-        schedules.push({ id: Date.now(), title, tasks: [] });
-        localStorage.setItem('schedules', JSON.stringify(schedules));
-        renderSchedules();
-        closeAddScheduleModal();
-      }
-    }
-
-    function deleteSchedule(id) {
-      if(confirm('ลบตารางซ้อมนี้ใช่หรือไม่?')) {
-        schedules = schedules.filter(s => s.id !== id);
-        localStorage.setItem('schedules', JSON.stringify(schedules));
-        renderSchedules();
-      }
-    }
-
-    function viewScheduleDetail(id) {
-      activeScheduleId = id;
-      const target = schedules.find(s => s.id === id);
-      if (!target) return;
-
-      document.getElementById('detail-title').innerText = target.title;
-      document.getElementById('view-schedule').classList.add('hidden');
-      document.getElementById('view-schedule-detail').classList.remove('hidden');
-      renderTasks();
-    }
-
-    function backToScheduleList() {
-      activeScheduleId = null;
-      document.getElementById('view-schedule-detail').classList.add('hidden');
-      document.getElementById('view-schedule').classList.remove('hidden');
-      renderSchedules();
-    }
-
-    function renderTasks() {
-      const target = schedules.find(s => s.id === activeScheduleId);
-      const container = document.getElementById('task-list');
-      if (!target || !target.tasks || target.tasks.length === 0) {
-        container.innerHTML = `<div class="text-slate-500 text-sm text-center py-8">ยังไม่มีรายการซ้อม กดปุ่ม "+ เพิ่มรายการซ้อม"</div>`;
-        return;
-      }
-
-      container.innerHTML = target.tasks.map((task, idx) => `
-        <div class="card-bg p-3.5 rounded-xl border border-slate-800 flex justify-between items-center">
-          <span class="text-sm text-slate-200 pr-2"><i class="fa-solid fa-circle-dot text-amber-500 text-xs mr-2"></i> ${task}</span>
-          <button onclick="deleteTask(${idx})" class="text-slate-500 active:text-red-400 text-sm p-1.5 flex-shrink-0">
-            <i class="fa-regular fa-trash-can"></i>
-          </button>
-        </div>
-      `).join('');
-    }
-
-    function openAddTaskModal() {
-      document.getElementById('task-input').value = '';
-      document.getElementById('task-modal').classList.remove('hidden');
-      document.getElementById('task-modal').classList.add('flex');
-    }
-
-    function closeAddTaskModal() {
-      document.getElementById('task-modal').classList.add('hidden');
-      document.getElementById('task-modal').classList.remove('flex');
-    }
-
-    function saveTask() {
-      const text = document.getElementById('task-input').value.trim();
-      if (text && activeScheduleId) {
-        const target = schedules.find(s => s.id === activeScheduleId);
-        if (target) {
-          if (!target.tasks) target.tasks = [];
-          target.tasks.push(text);
-          localStorage.setItem('schedules', JSON.stringify(schedules));
-          renderTasks();
-          closeAddTaskModal();
-        }
-      }
-    }
-
-    function deleteTask(index) {
-      if(confirm('ลบรายการซ้อมนี้ใช่หรือไม่?')) {
-        const target = schedules.find(s => s.id === activeScheduleId);
-        if (target && target.tasks) {
-          target.tasks.splice(index, 1);
-          localStorage.setItem('schedules', JSON.stringify(schedules));
-          renderTasks();
-        }
-      }
-    }
-
-    function renderStats() {
-      const totals = {
-        layup: { made: 0, attempt: 0 },
-        midrange: { made: 0, attempt: 0 },
-        three: { made: 0, attempt: 0 },
-        freethrow: { made: 0, attempt: 0 }
-      };
-
-      stats.forEach(s => {
-        if (totals[s.type]) {
-          totals[s.type].made += s.made;
-          totals[s.type].attempt += s.attempt;
-        }
-      });
-
-      ['layup', 'midrange', 'three', 'freethrow'].forEach(type => {
-        const made = totals[type].made;
-        const attempt = totals[type].attempt;
-        const pct = attempt > 0 ? ((made / attempt) * 100).toFixed(1) : '0.0';
-
-        document.getElementById(`made-${type}`).innerText = made;
-        document.getElementById(`total-${type}`).innerText = attempt;
-        document.getElementById(`pct-${type}`).innerText = `${pct}%`;
-      });
-
-      const historyContainer = document.getElementById('history-list');
-      if (stats.length === 0) {
-        historyContainer.innerHTML = `<div class="text-slate-500 text-sm text-center py-6">ยังไม่มีประวัติการยิงประตู</div>`;
-        return;
-      }
-      historyContainer.innerHTML = stats.map(s => {
-        const pct = s.attempt > 0 ? ((s.made / s.attempt) * 100).toFixed(1) : '0.0';
-        return `
-          <div class="card-bg p-3.5 rounded-xl border border-slate-800 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-              <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded border border-slate-700">${s.date}</span>
-              <div>
-                <div class="font-bold text-xs sm:text-sm text-white">${s.typeName}</div>
-                <div class="text-[11px] text-slate-400">เข้า <span class="text-emerald-400 font-semibold">${s.made}</span> / <span class="text-white font-semibold">${s.attempt}</span></div>
-              </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-600 mb-1">ส่วนลด (%)</label>
+                <input type="number" id="discountPercent" placeholder="เช่น 20" 
+                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
             </div>
-            <div class="flex items-center gap-3">
-              <span class="text-emerald-400 font-bold text-base sm:text-lg">${pct}%</span>
-              <button onclick="deleteStat(${s.id})" class="text-slate-500 active:text-red-400 text-sm p-1">
-                <i class="fa-regular fa-trash-can"></i>
-              </button>
+
+            <button onclick="calculateDiscount()" 
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-200 transition duration-200">
+                คำนวณราคา
+            </button>
+        </div>
+
+        <!-- ส่วนแสดงผลลัพธ์ -->
+        <div id="resultBox" class="mt-6 pt-6 border-t border-slate-100 space-y-3 hidden">
+            <div class="flex justify-between items-center text-slate-600">
+                <span>ประหยัดไปได้:</span>
+                <span id="savedAmount" class="font-semibold text-emerald-600 text-lg">0 ฿</span>
             </div>
-          </div>
-        `;
-      }).join('');
-    }
+            <div class="flex justify-between items-center text-slate-800 font-bold text-xl">
+                <span>ราคาที่ต้องจ่าย:</span>
+                <span id="finalPrice" class="text-indigo-600 text-2xl">0 ฿</span>
+            </div>
+        </div>
+    </div>
 
-    function openStatModal() {
-      document.getElementById('stat-modal').classList.remove('hidden');
-      document.getElementById('stat-modal').classList.add('flex');
-    }
+    <script>
+        function calculateDiscount() {
+            const price = parseFloat(document.getElementById('originalPrice').value);
+            const discount = parseFloat(document.getElementById('discountPercent').value);
 
-    function closeStatModal() {
-      document.getElementById('stat-modal').classList.add('hidden');
-      document.getElementById('stat-modal').classList.remove('flex');
-    }
+            if (isNaN(price) || price <= 0) {
+                alert('กรุณากรอกราคาสินค้าให้ถูกต้อง');
+                return;
+            }
 
-    function saveStat() {
-      const typeSelect = document.getElementById('stat-type');
-      const type = typeSelect.value;
-      const typeName = typeSelect.options[typeSelect.selectedIndex].text;
-      const made = parseInt(document.getElementById('stat-made').value) || 0;
-      const attempt = parseInt(document.getElementById('stat-attempt').value) || 0;
-      const today = new Date().toISOString().split('T')[0];
+            const discountRate = isNaN(discount) || discount < 0 ? 0 : discount;
+            const saved = (price * discountRate) / 100;
+            const final = price - saved;
 
-      if (attempt < made) {
-        alert('จำนวนยิงเข้าต้องไม่มากกว่าจำนวนยิงทั้งหมด');
-        return;
-      }
-
-      stats.unshift({ id: Date.now(), type, typeName, made, attempt, date: today });
-      localStorage.setItem('statsHistory', JSON.stringify(stats));
-      renderStats();
-      closeStatModal();
-    }
-
-    function deleteStat(id) {
-      if(confirm('ลบสถิตินี้ใช่หรือไม่?')) {
-        stats = stats.filter(s => s.id !== id);
-        localStorage.setItem('statsHistory', JSON.stringify(stats));
-        renderStats();
-      }
-    }
-
-    renderSchedules();
-    renderStats();
-  </script>
+            // แสดงผลลัพธ์
+            document.getElementById('savedAmount').innerText = saved.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
+            document.getElementById('finalPrice').innerText = final.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
+            
+            document.getElementById('resultBox').classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>
