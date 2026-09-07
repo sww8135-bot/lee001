@@ -14,7 +14,7 @@
 <body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
     <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
-        <!-- หัวข้อพร้อมไอคอนเครื่องคิดเลข SVG -->
+        <!-- หัวข้อพร้อมไอคอน -->
         <div class="flex items-center justify-center gap-2 mb-6">
             <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
@@ -35,16 +35,29 @@
                 <input type="number" id="discountPercent" placeholder="เช่น 20" oninput="calculateDiscount()"
                     class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
                 
-                <!-- ปุ่มเปอร์เซ็นต์ด่วนที่ใช้บ่อย -->
-                <div class="mt-2">
-                    <span class="text-xs text-slate-400 block mb-1">ส่วนลดที่ใช้บ่อย:</span>
-                    <div class="grid grid-cols-6 gap-1.5">
-                        <button type="button" onclick="setDiscount(5)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">5%</button>
-                        <button type="button" onclick="setDiscount(10)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">10%</button>
-                        <button type="button" onclick="setDiscount(15)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">15%</button>
-                        <button type="button" onclick="setDiscount(20)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">20%</button>
-                        <button type="button" onclick="setDiscount(30)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">30%</button>
-                        <button type="button" onclick="setDiscount(50)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">50%</button>
+                <!-- ส่วนปุ่มด่วน + ปุ่มจัดการตั้งค่า -->
+                <div class="mt-3">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-xs text-slate-500 font-medium">ส่วนลดที่ใช้บ่อย:</span>
+                        <button type="button" onclick="toggleEditMode()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
+                            ⚙️ <span id="editBtnText">แก้ไขปุ่ม</span>
+                        </button>
+                    </div>
+
+                    <!-- รายการปุ่มแสดงผล -->
+                    <div id="quickButtons" class="grid grid-cols-6 gap-1.5">
+                        <!-- ถูกเจนด้วย JavaScript -->
+                    </div>
+
+                    <!-- ฟอร์มแก้ไขปุ่ม (ซ่อนไว้เริ่มต้น) -->
+                    <div id="editBox" class="hidden mt-2 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                        <span class="text-xs font-semibold text-slate-600 block">กำหนดเปอร์เซ็นต์ใหม่:</span>
+                        <div class="grid grid-cols-3 gap-2" id="editInputs">
+                            <!-- Input แก้ไขสร้างโดย JS -->
+                        </div>
+                        <button type="button" onclick="saveCustomDiscounts()" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition">
+                            บันทึกการตั้งค่า
+                        </button>
                     </div>
                 </div>
             </div>
@@ -69,13 +82,66 @@
     </div>
 
     <script>
-        // ฟังก์ชันตั้งค่าเปอร์เซ็นต์ด่วน
+        // โหลดค่าเริ่มต้น หรือใช้ค่าจาก localStorage
+        const defaultDiscounts = [5, 10, 15, 20, 30, 50];
+        let customDiscounts = JSON.parse(localStorage.getItem('myDiscounts')) || defaultDiscounts;
+
+        function renderButtons() {
+            const container = document.getElementById('quickButtons');
+            const editContainer = document.getElementById('editInputs');
+            
+            container.innerHTML = '';
+            editContainer.innerHTML = '';
+
+            customDiscounts.forEach((val, idx) => {
+                // สร้างปุ่มกดใช้งาน
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition';
+                btn.innerText = `${val}%`;
+                btn.onclick = () => setDiscount(val);
+                container.appendChild(btn);
+
+                // สร้าง ช่องอินพุตสำหรับแก้ไข
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.value = val;
+                input.id = `edit-input-${idx}`;
+                input.className = 'px-2 py-1 border border-slate-300 rounded text-xs text-center focus:outline-none focus:ring-1 focus:ring-indigo-500';
+                editContainer.appendChild(input);
+            });
+        }
+
+        function toggleEditMode() {
+            const editBox = document.getElementById('editBox');
+            const editBtnText = document.getElementById('editBtnText');
+            
+            if (editBox.classList.contains('hidden')) {
+                editBox.classList.remove('hidden');
+                editBtnText.innerText = 'ปิดการแก้ไข';
+            } else {
+                editBox.classList.add('hidden');
+                editBtnText.innerText = 'แก้ไขปุ่ม';
+            }
+        }
+
+        function saveCustomDiscounts() {
+            const newDiscounts = [];
+            for (let i = 0; i < customDiscounts.length; i++) {
+                const val = parseFloat(document.getElementById(`edit-input-${i}`).value);
+                newDiscounts.push(isNaN(val) || val < 0 ? 0 : val);
+            }
+            customDiscounts = newDiscounts;
+            localStorage.setItem('myDiscounts', JSON.stringify(customDiscounts));
+            renderButtons();
+            toggleEditMode();
+        }
+
         function setDiscount(val) {
             document.getElementById('discountPercent').value = val;
             calculateDiscount();
         }
 
-        // ฟังก์ชันคำนวณ
         function calculateDiscount() {
             const priceVal = document.getElementById('originalPrice').value;
             const discountVal = document.getElementById('discountPercent').value;
@@ -97,6 +163,9 @@
             
             document.getElementById('resultBox').classList.remove('hidden');
         }
+
+        // แสดงผลปุ่มเริ่มต้น
+        renderButtons();
     </script>
 </body>
 </html>
