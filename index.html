@@ -26,13 +26,13 @@
         <div class="space-y-4">
             <div>
                 <label class="block text-sm font-medium text-slate-600 mb-1">ราคาก่อนลด (บาท)</label>
-                <input type="number" id="originalPrice" placeholder="เช่น 1000" oninput="calculateDiscount()"
+                <input type="number" id="originalPrice" placeholder="เช่น 1000" oninput="calculateDiscount()" onkeydown="handleEnter(event)"
                     class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-slate-600 mb-1">ส่วนลด (%)</label>
-                <input type="number" id="discountPercent" placeholder="เช่น 20" oninput="calculateDiscount()"
+                <input type="number" id="discountPercent" placeholder="เช่น 20" oninput="calculateDiscount()" onkeydown="handleEnter(event)"
                     class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
                 
                 <!-- ส่วนปุ่มด่วน + ปุ่มจัดการตั้งค่า -->
@@ -82,8 +82,7 @@
     </div>
 
     <script>
-        // โหลดค่าเริ่มต้น หรือใช้ค่าจาก localStorage
-        const defaultDiscounts = [5, 10, 15, 20, 30, 50];
+        const defaultDiscounts = [20, 10, 15, 20, 30, 50];
         let customDiscounts = JSON.parse(localStorage.getItem('myDiscounts')) || defaultDiscounts;
 
         function renderButtons() {
@@ -94,7 +93,6 @@
             editContainer.innerHTML = '';
 
             customDiscounts.forEach((val, idx) => {
-                // สร้างปุ่มกดใช้งาน
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition';
@@ -102,12 +100,12 @@
                 btn.onclick = () => setDiscount(val);
                 container.appendChild(btn);
 
-                // สร้าง ช่องอินพุตสำหรับแก้ไข
                 const input = document.createElement('input');
                 input.type = 'number';
                 input.value = val;
                 input.id = `edit-input-${idx}`;
                 input.className = 'px-2 py-1 border border-slate-300 rounded text-xs text-center focus:outline-none focus:ring-1 focus:ring-indigo-500';
+                input.onkeydown = (e) => { if (e.key === 'Enter') saveCustomDiscounts(); };
                 editContainer.appendChild(input);
             });
         }
@@ -142,6 +140,14 @@
             calculateDiscount();
         }
 
+        // ฟังก์ชันตรวจจับการกดปุ่ม Enter
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                calculateDiscount();
+            }
+        }
+
         function calculateDiscount() {
             const priceVal = document.getElementById('originalPrice').value;
             const discountVal = document.getElementById('discountPercent').value;
@@ -164,7 +170,6 @@
             document.getElementById('resultBox').classList.remove('hidden');
         }
 
-        // แสดงผลปุ่มเริ่มต้น
         renderButtons();
     </script>
 </body>
