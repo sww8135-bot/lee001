@@ -4,258 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เครื่องคิดเลขคำนวณส่วนลด</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
-    <style> body { font-family: 'Prompt', sans-serif; } </style>
+    <style>
+        body { font-family: 'Prompt', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 min-h-screen flex items-center justify-center p-4 transition-colors duration-200">
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 w-full max-w-md transition-colors duration-200">
-        <!-- หัวข้อ + ปุ่มสลับโหมด + ปุ่ม Reset -->
-        <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center gap-2">
-                <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                </svg>
-                <h1 class="text-2xl font-bold text-slate-800 dark:text-white">เครื่องคำนวณส่วนลด</h1>
-            </div>
-            
-            <div class="flex items-center gap-2">
-                <button onclick="toggleDarkMode()" id="themeBtn" title="เปลี่ยนโหมด" class="p-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-xl transition text-lg">
-                    🌙
-                </button>
-                <button onclick="clearAll()" title="ล้างข้อมูล" class="text-xs text-rose-500 hover:text-rose-700 dark:text-rose-400 font-medium bg-rose-50 dark:bg-rose-950/40 p-2.5 rounded-xl transition">
-                    🗑️
-                </button>
-            </div>
+    <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+        <!-- หัวข้อพร้อมไอคอนเครื่องคิดเลข SVG -->
+        <div class="flex items-center justify-center gap-2 mb-6">
+            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            <h1 class="text-2xl font-bold text-slate-800">เครื่องคำนวณส่วนลด</h1>
         </div>
         
         <!-- ฟอร์มกรอกข้อมูล -->
         <div class="space-y-4">
-            <!-- ส่วนราคาก่อนลด -->
             <div>
-                <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">ราคาก่อนลด (บาท)</label>
-                <input type="number" id="originalPrice" placeholder="เช่น 1000" oninput="calculateDiscount()" onkeydown="handleEnter(event)"
-                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg transition-colors">
+                <label class="block text-sm font-medium text-slate-600 mb-1">ราคาก่อนลด (บาท)</label>
+                <input type="number" id="originalPrice" placeholder="เช่น 1000" oninput="calculateDiscount()"
+                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-600 mb-1">ส่วนลด (%)</label>
+                <input type="number" id="discountPercent" placeholder="เช่น 20" oninput="calculateDiscount()"
+                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
                 
-                <!-- ปุ่มราคาที่ใช้บ่อย -->
-                <div class="mt-3">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">ราคาที่ใช้บ่อย:</span>
-                        <button type="button" onclick="toggleEditPriceMode()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
-                            ⚙️ <span id="editPriceBtnText">แก้ไขปุ่ม</span>
-                        </button>
-                    </div>
-
-                    <div id="quickPriceButtons" class="grid grid-cols-6 gap-1.5"></div>
-
-                    <div id="editPriceBox" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
-                        <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 block">กำหนดราคาใหม่:</span>
-                        <div class="grid grid-cols-3 gap-2" id="editPriceInputs"></div>
-                        <button type="button" onclick="saveCustomPrices()" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition">
-                            บันทึกการตั้งค่าราคา
-                        </button>
+                <!-- ปุ่มเปอร์เซ็นต์ด่วนที่ใช้บ่อย -->
+                <div class="mt-2">
+                    <span class="text-xs text-slate-400 block mb-1">ส่วนลดที่ใช้บ่อย:</span>
+                    <div class="grid grid-cols-6 gap-1.5">
+                        <button type="button" onclick="setDiscount(5)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">5%</button>
+                        <button type="button" onclick="setDiscount(10)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">10%</button>
+                        <button type="button" onclick="setDiscount(15)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">15%</button>
+                        <button type="button" onclick="setDiscount(20)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">20%</button>
+                        <button type="button" onclick="setDiscount(30)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">30%</button>
+                        <button type="button" onclick="setDiscount(50)" class="py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition">50%</button>
                     </div>
                 </div>
             </div>
 
-            <!-- ส่วนเปอร์เซ็นต์ส่วนลด -->
-            <div>
-                <label class="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">ส่วนลด (%)</label>
-                <input type="number" id="discountPercent" placeholder="เช่น 20" oninput="calculateDiscount()" onkeydown="handleEnter(event)"
-                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg transition-colors">
-                
-                <!-- ปุ่มเปอร์เซ็นต์ที่ใช้บ่อย -->
-                <div class="mt-3">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">ส่วนลดที่ใช้บ่อย:</span>
-                        <button type="button" onclick="toggleEditDiscountMode()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
-                            ⚙️ <span id="editDiscountBtnText">แก้ไขปุ่ม</span>
-                        </button>
-                    </div>
-
-                    <div id="quickDiscountButtons" class="grid grid-cols-6 gap-1.5"></div>
-
-                    <div id="editDiscountBox" class="hidden mt-2 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
-                        <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 block">กำหนดเปอร์เซ็นต์ใหม่:</span>
-                        <div class="grid grid-cols-3 gap-2" id="editDiscountInputs"></div>
-                        <button type="button" onclick="saveCustomDiscounts()" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition">
-                            บันทึกการตั้งค่าส่วนลด
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="calculateDiscount(true)" 
-                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-200 dark:shadow-none transition duration-200">
+            <button onclick="calculateDiscount()" 
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-200 transition duration-200">
                 คำนวณราคา
             </button>
         </div>
 
-        <!-- ผลลัพธ์ -->
-        <div id="resultBox" class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700 space-y-3 hidden">
-            <div class="flex justify-between items-center text-slate-600 dark:text-slate-300">
+        <!-- ส่วนแสดงผลลัพธ์ -->
+        <div id="resultBox" class="mt-6 pt-6 border-t border-slate-100 space-y-3 hidden">
+            <div class="flex justify-between items-center text-slate-600">
                 <span>ประหยัดไปได้:</span>
-                <span id="savedAmount" class="font-semibold text-emerald-600 dark:text-emerald-400 text-lg">0.00 บาท</span>
+                <span id="savedAmount" class="font-semibold text-emerald-600 text-lg">0.00 บาท</span>
             </div>
-            <div class="flex justify-between items-center text-slate-800 dark:text-white font-bold text-xl">
+            <div class="flex justify-between items-center text-slate-800 font-bold text-xl">
                 <span>ราคาที่ต้องจ่าย:</span>
-                <div class="flex items-center gap-2">
-                    <span id="finalPrice" class="text-indigo-600 dark:text-indigo-400 text-2xl">0.00 บาท</span>
-                    <button onclick="copyResult()" title="คัดลอกราคา" class="p-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-indigo-100 dark:hover:bg-slate-600 rounded-lg text-slate-600 dark:text-slate-200 transition">
-                        📋
-                    </button>
-                </div>
+                <span id="finalPrice" class="text-indigo-600 text-2xl">0.00 บาท</span>
             </div>
-        </div>
-
-        <!-- ประวัติการคำนวณ -->
-        <div id="historyBox" class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 hidden">
-            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 block mb-2">ประวัติการคำนวณล่าสุด:</span>
-            <ul id="historyList" class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 max-h-32 overflow-y-auto"></ul>
         </div>
     </div>
 
     <script>
-        const defaultPrices = [100, 300, 500, 1000, 1500, 2000];
-        const defaultDiscounts = [5, 10, 15, 20, 30, 50];
-
-        let customPrices = JSON.parse(localStorage.getItem('myPrices')) || defaultPrices;
-        let customDiscounts = JSON.parse(localStorage.getItem('myDiscounts')) || defaultDiscounts;
-        let lastFinalPrice = "";
-
-        // ระบบ Dark Mode
-        function initTheme() {
-            const isDark = localStorage.getItem('theme') === 'dark' || 
-                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-                document.getElementById('themeBtn').innerText = '☀️';
-            } else {
-                document.documentElement.classList.remove('dark');
-                document.getElementById('themeBtn').innerText = '🌙';
-            }
-        }
-
-        function toggleDarkMode() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            document.getElementById('themeBtn').innerText = isDark ? '☀️' : '🌙';
-        }
-
-        // Render ปุ่มราคาด่วน
-        function renderPriceButtons() {
-            const container = document.getElementById('quickPriceButtons');
-            const editContainer = document.getElementById('editPriceInputs');
-            container.innerHTML = '';
-            editContainer.innerHTML = '';
-
-            customPrices.forEach((val, idx) => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 hover:text-indigo-600 dark:hover:text-indigo-300 text-slate-600 dark:text-slate-300 font-medium rounded-lg text-xs transition truncate';
-                btn.innerText = val >= 1000 ? `${val/1000}k` : val;
-                btn.title = `${val} บาท`;
-                btn.onclick = () => setPrice(val);
-                container.appendChild(btn);
-
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.value = val;
-                input.id = `edit-price-input-${idx}`;
-                input.className = 'px-2 py-1 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded text-xs text-center focus:outline-none';
-                input.onkeydown = (e) => { if (e.key === 'Enter') saveCustomPrices(); };
-                editContainer.appendChild(input);
-            });
-        }
-
-        // Render ปุ่มส่วนลดด่วน
-        function renderDiscountButtons() {
-            const container = document.getElementById('quickDiscountButtons');
-            const editContainer = document.getElementById('editDiscountInputs');
-            container.innerHTML = '';
-            editContainer.innerHTML = '';
-
-            customDiscounts.forEach((val, idx) => {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 hover:text-indigo-600 dark:hover:text-indigo-300 text-slate-600 dark:text-slate-300 font-medium rounded-lg text-xs transition';
-                btn.innerText = `${val}%`;
-                btn.onclick = () => setDiscount(val);
-                container.appendChild(btn);
-
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.value = val;
-                input.id = `edit-discount-input-${idx}`;
-                input.className = 'px-2 py-1 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-white rounded text-xs text-center focus:outline-none';
-                input.onkeydown = (e) => { if (e.key === 'Enter') saveCustomDiscounts(); };
-                editContainer.appendChild(input);
-            });
-        }
-
-        // จัดการแก้ไขราคา
-        function toggleEditPriceMode() {
-            const editBox = document.getElementById('editPriceBox');
-            const editBtnText = document.getElementById('editPriceBtnText');
-            editBox.classList.toggle('hidden');
-            editBtnText.innerText = editBox.classList.contains('hidden') ? 'แก้ไขปุ่ม' : 'ปิดการแก้ไข';
-        }
-
-        function saveCustomPrices() {
-            customPrices = customPrices.map((_, i) => {
-                const val = parseFloat(document.getElementById(`edit-price-input-${i}`).value);
-                return isNaN(val) || val < 0 ? 0 : val;
-            });
-            localStorage.setItem('myPrices', JSON.stringify(customPrices));
-            renderPriceButtons();
-            toggleEditPriceMode();
-        }
-
-        function setPrice(val) {
-            document.getElementById('originalPrice').value = val;
-            calculateDiscount();
-        }
-
-        // จัดการแก้ไขส่วนลด
-        function toggleEditDiscountMode() {
-            const editBox = document.getElementById('editDiscountBox');
-            const editBtnText = document.getElementById('editDiscountBtnText');
-            editBox.classList.toggle('hidden');
-            editBtnText.innerText = editBox.classList.contains('hidden') ? 'แก้ไขปุ่ม' : 'ปิดการแก้ไข';
-        }
-
-        function saveCustomDiscounts() {
-            customDiscounts = customDiscounts.map((_, i) => {
-                const val = parseFloat(document.getElementById(`edit-discount-input-${i}`).value);
-                return isNaN(val) || val < 0 ? 0 : val;
-            });
-            localStorage.setItem('myDiscounts', JSON.stringify(customDiscounts));
-            renderDiscountButtons();
-            toggleEditDiscountMode();
-        }
-
+        // ฟังก์ชันตั้งค่าเปอร์เซ็นต์ด่วน
         function setDiscount(val) {
             document.getElementById('discountPercent').value = val;
             calculateDiscount();
         }
 
-        function handleEnter(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                calculateDiscount(true);
-            }
-        }
-
-        function calculateDiscount(saveToHistory = false) {
+        // ฟังก์ชันคำนวณ
+        function calculateDiscount() {
             const priceVal = document.getElementById('originalPrice').value;
             const discountVal = document.getElementById('discountPercent').value;
+            
             const price = parseFloat(priceVal);
             const discount = parseFloat(discountVal);
 
@@ -268,50 +92,11 @@
             const saved = (price * discountRate) / 100;
             const final = price - saved;
 
-            const savedTxt = saved.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
-            const finalTxt = final.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
+            document.getElementById('savedAmount').innerText = saved.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
+            document.getElementById('finalPrice').innerText = final.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
             
-            lastFinalPrice = finalTxt;
-            document.getElementById('savedAmount').innerText = savedTxt;
-            document.getElementById('finalPrice').innerText = finalTxt;
             document.getElementById('resultBox').classList.remove('hidden');
-
-            if (saveToHistory) {
-                addHistory(price, discountRate, finalTxt);
-            }
         }
-
-        function copyResult() {
-            if (!lastFinalPrice) return;
-            navigator.clipboard.writeText(lastFinalPrice);
-            alert('คัดลอกราคา ' + lastFinalPrice + ' เรียบร้อยแล้ว!');
-        }
-
-        function clearAll() {
-            document.getElementById('originalPrice').value = '';
-            document.getElementById('discountPercent').value = '';
-            document.getElementById('resultBox').classList.add('hidden');
-        }
-
-        function addHistory(price, discount, finalTxt) {
-            const historyBox = document.getElementById('historyBox');
-            const historyList = document.getElementById('historyList');
-            historyBox.classList.remove('hidden');
-
-            const li = document.createElement('li');
-            li.className = 'flex justify-between bg-slate-50 dark:bg-slate-900/50 p-2 rounded border border-slate-100 dark:border-slate-700/50';
-            li.innerHTML = `<span>ราคา ${price.toLocaleString()} บาท (ลด ${discount}%)</span> <span class="font-bold text-indigo-600 dark:text-indigo-400">${finalTxt}</span>`;
-            
-            historyList.prepend(li);
-            if (historyList.children.length > 5) {
-                historyList.removeChild(historyList.lastChild);
-            }
-        }
-
-        // เริ่มการทำงาน
-        initTheme();
-        renderPriceButtons();
-        renderDiscountButtons();
     </script>
 </body>
 </html>
