@@ -1,171 +1,126 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>เครื่องคิดเลขคำนวณส่วนลด</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Prompt', sans-serif; }
-    </style>
+<meta charset="UTF-8">
+<title>เครื่องคำนวณส่วนลด</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', 'Tahoma', sans-serif;
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #f1f5f9;
+  }
+  .card {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 32px 28px;
+    width: 340px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  h1 {
+    font-size: 20px;
+    margin: 0 0 24px 0;
+    text-align: center;
+    color: #f8fafc;
+  }
+  label {
+    display: block;
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 6px;
+  }
+  .field { margin-bottom: 18px; }
+  input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #f1f5f9;
+    font-size: 16px;
+    outline: none;
+  }
+  input:focus { border-color: #38bdf8; }
+  .result {
+    margin-top: 20px;
+    padding: 18px;
+    border-radius: 12px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    text-align: center;
+  }
+  .result .price {
+    font-size: 28px;
+    font-weight: 700;
+    color: #4ade80;
+  }
+  .result .save {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-top: 6px;
+  }
+  .result .old {
+    font-size: 13px;
+    color: #64748b;
+    text-decoration: line-through;
+    margin-top: 4px;
+  }
+</style>
 </head>
-<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+<body>
+  <div class="card">
+    <h1>💰 เครื่องคำนวณส่วนลด</h1>
 
-    <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
-        <!-- หัวข้อพร้อมไอคอน -->
-        <div class="flex items-center justify-center gap-2 mb-6">
-            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-            </svg>
-            <h1 class="text-2xl font-bold text-slate-800">เครื่องคำนวณส่วนลด</h1>
-        </div>
-        
-        <!-- ฟอร์มกรอกข้อมูล -->
-        <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-slate-600 mb-1">ราคาก่อนลด (บาท)</label>
-                <input type="number" id="originalPrice" placeholder="เช่น 1000" oninput="calculateDiscount()"
-                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-600 mb-1">ส่วนลด (%)</label>
-                <input type="number" id="discountPercent" placeholder="เช่น 20" oninput="calculateDiscount()"
-                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-lg">
-                
-                <!-- ส่วนปุ่มด่วน + ปุ่มจัดการตั้งค่า -->
-                <div class="mt-3">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-xs text-slate-500 font-medium">ส่วนลดที่ใช้บ่อย:</span>
-                        <button type="button" onclick="toggleEditMode()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
-                            ⚙️ <span id="editBtnText">แก้ไขปุ่ม</span>
-                        </button>
-                    </div>
-
-                    <!-- รายการปุ่มแสดงผล -->
-                    <div id="quickButtons" class="grid grid-cols-6 gap-1.5">
-                        <!-- ถูกเจนด้วย JavaScript -->
-                    </div>
-
-                    <!-- ฟอร์มแก้ไขปุ่ม (ซ่อนไว้เริ่มต้น) -->
-                    <div id="editBox" class="hidden mt-2 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                        <span class="text-xs font-semibold text-slate-600 block">กำหนดเปอร์เซ็นต์ใหม่:</span>
-                        <div class="grid grid-cols-3 gap-2" id="editInputs">
-                            <!-- Input แก้ไขสร้างโดย JS -->
-                        </div>
-                        <button type="button" onclick="saveCustomDiscounts()" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition">
-                            บันทึกการตั้งค่า
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="calculateDiscount()" 
-                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-200 transition duration-200">
-                คำนวณราคา
-            </button>
-        </div>
-
-        <!-- ส่วนแสดงผลลัพธ์ -->
-        <div id="resultBox" class="mt-6 pt-6 border-t border-slate-100 space-y-3 hidden">
-            <div class="flex justify-between items-center text-slate-600">
-                <span>ประหยัดไปได้:</span>
-                <span id="savedAmount" class="font-semibold text-emerald-600 text-lg">0.00 บาท</span>
-            </div>
-            <div class="flex justify-between items-center text-slate-800 font-bold text-xl">
-                <span>ราคาที่ต้องจ่าย:</span>
-                <span id="finalPrice" class="text-indigo-600 text-2xl">0.00 บาท</span>
-            </div>
-        </div>
+    <div class="field">
+      <label for="price">ราคาปกติ (บาท)</label>
+      <input type="number" id="price" placeholder="เช่น 1000" inputmode="decimal">
     </div>
 
-    <script>
-        // โหลดค่าเริ่มต้น หรือใช้ค่าจาก localStorage
-        const defaultDiscounts = [5, 10, 15, 20, 30, 50];
-        let customDiscounts = JSON.parse(localStorage.getItem('myDiscounts')) || defaultDiscounts;
+    <div class="field">
+      <label for="percent">ส่วนลด (%)</label>
+      <input type="number" id="percent" placeholder="เช่น 20" inputmode="decimal">
+    </div>
 
-        function renderButtons() {
-            const container = document.getElementById('quickButtons');
-            const editContainer = document.getElementById('editInputs');
-            
-            container.innerHTML = '';
-            editContainer.innerHTML = '';
+    <div class="result">
+      <div class="old" id="oldPrice"></div>
+      <div class="price" id="finalPrice">฿0.00</div>
+      <div class="save" id="saveAmount">ประหยัด ฿0.00</div>
+    </div>
+  </div>
 
-            customDiscounts.forEach((val, idx) => {
-                // สร้างปุ่มกดใช้งาน
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'py-1.5 bg-slate-100 hover:bg-indigo-100 hover:text-indigo-600 text-slate-600 font-medium rounded-lg text-xs transition';
-                btn.innerText = `${val}%`;
-                btn.onclick = () => setDiscount(val);
-                container.appendChild(btn);
+<script>
+  const priceInput = document.getElementById('price');
+  const percentInput = document.getElementById('percent');
+  const finalPrice = document.getElementById('finalPrice');
+  const saveAmount = document.getElementById('saveAmount');
+  const oldPrice = document.getElementById('oldPrice');
 
-                // สร้าง ช่องอินพุตสำหรับแก้ไข
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.value = val;
-                input.id = `edit-input-${idx}`;
-                input.className = 'px-2 py-1 border border-slate-300 rounded text-xs text-center focus:outline-none focus:ring-1 focus:ring-indigo-500';
-                editContainer.appendChild(input);
-            });
-        }
+  function formatMoney(num) {
+    return num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
 
-        function toggleEditMode() {
-            const editBox = document.getElementById('editBox');
-            const editBtnText = document.getElementById('editBtnText');
-            
-            if (editBox.classList.contains('hidden')) {
-                editBox.classList.remove('hidden');
-                editBtnText.innerText = 'ปิดการแก้ไข';
-            } else {
-                editBox.classList.add('hidden');
-                editBtnText.innerText = 'แก้ไขปุ่ม';
-            }
-        }
+  function calculate() {
+    const price = parseFloat(priceInput.value) || 0;
+    const percent = parseFloat(percentInput.value) || 0;
 
-        function saveCustomDiscounts() {
-            const newDiscounts = [];
-            for (let i = 0; i < customDiscounts.length; i++) {
-                const val = parseFloat(document.getElementById(`edit-input-${i}`).value);
-                newDiscounts.push(isNaN(val) || val < 0 ? 0 : val);
-            }
-            customDiscounts = newDiscounts;
-            localStorage.setItem('myDiscounts', JSON.stringify(customDiscounts));
-            renderButtons();
-            toggleEditMode();
-        }
+    const discountValue = price * (percent / 100);
+    const result = price - discountValue;
 
-        function setDiscount(val) {
-            document.getElementById('discountPercent').value = val;
-            calculateDiscount();
-        }
+    finalPrice.textContent = '฿' + formatMoney(result);
+    saveAmount.textContent = 'ประหยัด ฿' + formatMoney(discountValue);
+    oldPrice.textContent = price > 0 ? 'ราคาปกติ ฿' + formatMoney(price) : '';
+  }
 
-        function calculateDiscount() {
-            const priceVal = document.getElementById('originalPrice').value;
-            const discountVal = document.getElementById('discountPercent').value;
-            
-            const price = parseFloat(priceVal);
-            const discount = parseFloat(discountVal);
+  priceInput.addEventListener('input', calculate);
+  percentInput.addEventListener('input', calculate);
 
-            if (isNaN(price) || price <= 0) {
-                document.getElementById('resultBox').classList.add('hidden');
-                return;
-            }
-
-            const discountRate = isNaN(discount) || discount < 0 ? 0 : discount;
-            const saved = (price * discountRate) / 100;
-            const final = price - saved;
-
-            document.getElementById('savedAmount').innerText = saved.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
-            document.getElementById('finalPrice').innerText = final.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' บาท';
-            
-            document.getElementById('resultBox').classList.remove('hidden');
-        }
-
-        // แสดงผลปุ่มเริ่มต้น
-        renderButtons();
-    </script>
+  calculate();
+</script>
 </body>
 </html>
